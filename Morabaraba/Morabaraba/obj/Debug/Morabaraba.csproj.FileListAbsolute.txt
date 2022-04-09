@@ -8,3 +8,4 @@ D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artifici
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.CoreCompileInputs.cache
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.exe
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.pdb
+D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Form1.resources
