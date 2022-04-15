@@ -9,10 +9,12 @@ namespace Morabaraba
     internal class Board
     {
         private List<BoardCell> cells;
+        Piece piece = new Piece();
 
         public Board()
         {
             initializeBoard();
+            base.Controls.Add(piece.pieceImage);
         }
 
         private void initializeBoard()
