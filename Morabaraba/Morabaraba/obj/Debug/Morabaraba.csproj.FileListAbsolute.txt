@@ -20,3 +20,14 @@ C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morab
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.CoreCompileInputs.cache
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.exe
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.pdb
+D:\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.exe.config
+D:\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.exe
+D:\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.pdb
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.AssemblyReference.cache
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.SuggestedBindingRedirects.cache
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Form1.resources
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Properties.Resources.resources
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.GenerateResource.cache
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.CoreCompileInputs.cache
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.exe
+D:\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.pdb

@@ -32,6 +32,7 @@
             this.modeTwo = new System.Windows.Forms.Button();
             this.modeThree = new System.Windows.Forms.Button();
             this.exitButton = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // modeOne
@@ -42,18 +43,18 @@
             this.modeOne.Name = "modeOne";
             this.modeOne.Size = new System.Drawing.Size(145, 65);
             this.modeOne.TabIndex = 0;
-            this.modeOne.Text = "Human VS Human";
+            this.modeOne.Text = "PLay Offliine";
             this.modeOne.UseVisualStyleBackColor = false;
             // 
             // modeTwo
             // 
             this.modeTwo.BackColor = System.Drawing.Color.Cyan;
             this.modeTwo.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.modeTwo.Location = new System.Drawing.Point(172, 187);
+            this.modeTwo.Location = new System.Drawing.Point(172, 149);
             this.modeTwo.Name = "modeTwo";
             this.modeTwo.Size = new System.Drawing.Size(145, 65);
             this.modeTwo.TabIndex = 1;
-            this.modeTwo.Text = "Human VS Away Human";
+            this.modeTwo.Text = "Crete online game";
             this.modeTwo.UseVisualStyleBackColor = false;
             // 
             // modeThree
@@ -64,7 +65,7 @@
             this.modeThree.Name = "modeThree";
             this.modeThree.Size = new System.Drawing.Size(145, 65);
             this.modeThree.TabIndex = 2;
-            this.modeThree.Text = "Human VS AI";
+            this.modeThree.Text = "Play against PC";
             this.modeThree.UseVisualStyleBackColor = false;
             // 
             // exitButton
@@ -79,6 +80,17 @@
             this.exitButton.UseVisualStyleBackColor = false;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
             // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.Cyan;
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(172, 220);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(145, 65);
+            this.button1.TabIndex = 4;
+            this.button1.Text = "Join online game";
+            this.button1.UseVisualStyleBackColor = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -86,6 +98,7 @@
             this.BackgroundImage = global::Morabaraba.Properties.Resources.board;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(484, 461);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.modeThree);
             this.Controls.Add(this.modeTwo);
@@ -104,6 +117,7 @@
         private System.Windows.Forms.Button modeTwo;
         private System.Windows.Forms.Button modeThree;
         private System.Windows.Forms.Button exitButton;
+        private System.Windows.Forms.Button button1;
     }
 }
 
