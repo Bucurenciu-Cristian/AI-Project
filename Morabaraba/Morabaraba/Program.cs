@@ -10,27 +10,42 @@ namespace Morabaraba
 {
     internal static class Program
     {
+        private const int MaxInstanceCount = 2;
+        private static readonly Semaphore Semaphore = new Semaphore(MaxInstanceCount, MaxInstanceCount, "CanRunTwice");
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            ClientTCP.StartClient();
-            //Debug.WriteLine(NetworkConfig.getIP()+ "nu");
-            if (ClientTCP.playerNr == 1)
+            if (Semaphore.WaitOne(1000))
             {
-                Application.Run(new Menu());
+                try
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    int count = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length;
+                    Debug.WriteLine(count + "-----------------------");
+                    if (count == 1)
+                    {
+                        Application.Run(new Menu());
+                    }
+                    else if (count == 2)
+                    {
+                        ClientTCP.StartClient();
+                        MessageBox.Show("jocul poate incepe!");
+                        Application.Run(new Game());
+                    }
+                }
+                finally
+                {
+                    Semaphore.Release();
+                }
             }
-            else if(ClientTCP.playerNr == 2)
+            else
             {
-                Application.Run(new Game());
+                Debug.WriteLine("I cannot run, too many instances are already running");
             }
-
-            //Application.Run(new NetworkConfig());
-            //Application.Run(new Game());
         }
     }
 }

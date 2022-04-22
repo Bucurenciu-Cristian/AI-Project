@@ -23,7 +23,6 @@ namespace Morabaraba
 
             try
             {
-
                 // Create a Socket that will use Tcp protocol
                 Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 // A Socket must be associated with an endpoint using the Bind method
@@ -32,35 +31,22 @@ namespace Morabaraba
                 // We will listen 10 requests at a time
                 listener.Listen(2);
                 Debug.WriteLine("Waiting for a connection...");
-                Socket handler = listener.Accept();
                 DialogResult result = MessageBox.Show("Se asteapta conectarea jucatorilor");
-                if (result == DialogResult.OK)
-                {
-                    /*while(ClientTCP.playerNr!=2)
-                    {
-                        MessageBox.Show("playeri conectati "+ ClientTCP.playerNr);
-                    }*/
-                    MessageBox.Show("jocul poate incepe!");
-                }
+                Socket handler = listener.Accept();
 
                 // Incoming data from the client.
                 string data = null;
                 byte[] bytes = null;
-
-                while (true)
+                bytes = new byte[1024];
+                int bytesRec = handler.Receive(bytes);
+                data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+                ClientTCP.playerNr = int.Parse(data);
+                if(ClientTCP.playerNr == 2)
                 {
-                    bytes = new byte[1024];
-                    int bytesRec = handler.Receive(bytes);
-                    data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
-                    if (data.IndexOf("<EOF>") > -1)
-                    {
-                        break;
-                    }
+                    MessageBox.Show("jocul poate incepe!");
                 }
-                Console.WriteLine("Text received : {0}", data);
-
-                byte[] msg = Encoding.ASCII.GetBytes(data);
-                handler.Send(msg);
+                /*byte[] msg = Encoding.ASCII.GetBytes(data);
+                handler.Send(msg);*/
                 handler.Shutdown(SocketShutdown.Both);
                 handler.Close();
             }
@@ -68,9 +54,6 @@ namespace Morabaraba
             {
                 Debug.WriteLine(e.ToString());
             }
-
-            Debug.WriteLine("\n Press any key to continue...");
-            //Debug.ReadKey();
         }
     }
 }
