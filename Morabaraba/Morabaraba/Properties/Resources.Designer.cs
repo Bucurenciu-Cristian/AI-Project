@@ -63,9 +63,9 @@ namespace Morabaraba.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap blackPiece {
+        internal static System.Drawing.Bitmap game_board {
             get {
-                object obj = ResourceManager.GetObject("blackPiece", resourceCulture);
+                object obj = ResourceManager.GetObject("game_board", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,19 +73,9 @@ namespace Morabaraba.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap board {
+        internal static System.Drawing.Bitmap game_logo {
             get {
-                object obj = ResourceManager.GetObject("board", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap whitePiece {
-            get {
-                object obj = ResourceManager.GetObject("whitePiece", resourceCulture);
+                object obj = ResourceManager.GetObject("game_logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

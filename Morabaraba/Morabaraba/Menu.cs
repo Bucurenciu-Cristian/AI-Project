@@ -10,19 +10,23 @@ using System.Windows.Forms;
 
 namespace Morabaraba
 {
-    public partial class Form1 : Form
+    public partial class Menu : Form
     {
-        PictureBox pictureBox = new PictureBox();
-        public Form1()
+        public Menu()
         {
             InitializeComponent();
-
-            
         }
 
-        private void exitButton_Click(object sender, EventArgs e)
+        private void buttonExit_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void buttonPlayer_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            NetworkConfig.net.Show();
+            NetworkConfig.net.Init();
         }
     }
 }
