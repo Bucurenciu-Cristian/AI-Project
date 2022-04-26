@@ -8,7 +8,6 @@ D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artifici
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.csproj.CoreCompileInputs.cache
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.exe
 D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.pdb
-D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Form1.resources
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.exe.config
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.exe
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\bin\Debug\Morabaraba.pdb
@@ -22,3 +21,6 @@ C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morab
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Game.resources
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Menu.resources
 C:\Users\teodo\Documents\GitHub\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.NetworkConfig.resources
+D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Game.resources
+D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.Menu.resources
+D:\Storage\Scoala\1_Facultate\Cursuri 2021-2022\Semestrul 2\Inteligenta artificiala\AI-Project\Morabaraba\Morabaraba\obj\Debug\Morabaraba.NetworkConfig.resources

@@ -69,6 +69,7 @@
             this.buttonPC.TabIndex = 2;
             this.buttonPC.Text = "Against PC";
             this.buttonPC.UseVisualStyleBackColor = false;
+            this.buttonPC.Click += new System.EventHandler(this.buttonPC_Click);
             // 
             // buttonInstr
             // 
