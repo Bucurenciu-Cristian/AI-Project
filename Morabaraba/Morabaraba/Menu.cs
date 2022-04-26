@@ -28,5 +28,10 @@ namespace Morabaraba
             NetworkConfig.net.Show();
             NetworkConfig.net.Init();
         }
+
+        private void buttonPC_Click(object sender, EventArgs e)
+        {
+            Game.game.Show();
+        }
     }
 }

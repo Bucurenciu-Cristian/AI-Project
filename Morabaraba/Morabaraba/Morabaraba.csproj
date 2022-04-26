@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Board.cs" />
+    <Compile Include="BoardCell.cs" />
+    <Compile Include="CellState.cs" />
     <Compile Include="ClientTCP.cs" />
     <Compile Include="Game.cs">
       <SubType>Form</SubType>
@@ -108,6 +111,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="images\game_board.png" />
+    <None Include="Resources\whitePiece.bmp" />
+    <None Include="Resources\blackPiece.bmp" />
     <None Include="Resources\game_board.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
