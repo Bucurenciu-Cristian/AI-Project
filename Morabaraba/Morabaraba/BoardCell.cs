@@ -13,7 +13,7 @@ namespace Morabaraba
         private int[] neighbors;
         public System.Drawing.Point Location;
         public CellState State { get; set; }
-        private bool partOfThree { get; set; }
+        private bool partOfThree { get; set; }// daca se afla in una din morile playerilor
 
         public BoardCell(){}
 

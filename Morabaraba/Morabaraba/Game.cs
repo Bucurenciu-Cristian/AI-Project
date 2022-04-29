@@ -50,5 +50,10 @@ namespace Morabaraba
                 board.panels[Int32.Parse(panel.Name) - 1].BackgroundImage = Properties.Resources.blackPiece;   
             }
         }
+
+        private void buttonSurrender_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -62,12 +62,14 @@
     <Compile Include="Menu.Designer.cs">
       <DependentUpon>Menu.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mill.cs" />
     <Compile Include="NetworkConfig.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="NetworkConfig.Designer.cs">
       <DependentUpon>NetworkConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerTCP.cs" />
