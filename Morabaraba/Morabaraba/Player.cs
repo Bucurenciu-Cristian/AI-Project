@@ -23,24 +23,27 @@ namespace Morabaraba
         }
         public bool myTurn { get; set; }
         public bool myColor { get;private set; }//0 alb, 1 negru care are mai mare valoarea la un random ia alb
-        public List<BoardCell> myHandCells { get; set; } //hand si board
-        public List<BoardCell> myBoardCells { get; }// variabila de tinut minte o celula pe care am apasat-o pentru miscare
+        public List<BoardCell> myHandCells = new List<BoardCell>();
+        public List<BoardCell> myBoardCells = new List<BoardCell>();// variabila de tinut minte o celula pe care am apasat-o pentru miscare
         // cell apasat ( selectata ) = new cell, daca e apasata aceeasi celula de 2 ori sa o deselecteze 
         public PlayerState myState { get; set; }
 
-        public Mill[] myMills;
-        public Player(bool myTurn, bool myColor)
+        public Mill[] myMills = new Mill[4];
+
+        public string name = "";
+        public Player(bool myTurn, bool myColor, string name)
         {
             this.myTurn = myTurn;
             this.myColor = myColor;
             myState = PlayerState.Placing;
+            this.name = name;
             initializeMills();
             initializeHandCells();
         }
 
         public void initializeMills()
         {
-            for(int i= 0; i < 4; i++)
+            for(int i= 0; i < myMills.Length; i++)
             {
                 myMills[i] = new Mill();
             }
@@ -51,6 +54,28 @@ namespace Morabaraba
             {
                 myHandCells.Add(new BoardCell());
             }
+        }
+
+        public System.Drawing.Bitmap getMyColor()
+        {
+            if(myColor == false)
+            {
+                return Properties.Resources.blackPiece;
+            }
+            else
+            {
+                return Properties.Resources.whitePiece;
+            }        
+        }
+
+        internal void setMyTurn(bool v)
+        {
+            this.myTurn=v;
+        }
+
+        public string getName()
+        {
+            return this.name;
         }
     }
 }

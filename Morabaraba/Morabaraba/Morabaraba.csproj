@@ -56,6 +56,7 @@
     <Compile Include="Game.Designer.cs">
       <DependentUpon>Game.cs</DependentUpon>
     </Compile>
+    <Compile Include="GamePlay.cs" />
     <Compile Include="Menu.cs">
       <SubType>Form</SubType>
     </Compile>

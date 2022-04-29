@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,9 +10,25 @@ namespace Morabaraba
 {
     internal class GamePlay
     {
-        int myTurn1;
-        int myTurn2;
-        public void whoStartsTheGame()
+        public static int myTurn1;
+        public static int myTurn2;
+        public static Player player1;
+        public static Player player2;
+
+        public GamePlay()
+        {
+
+        }
+
+        public static void setMyTurn1(int myTurn)
+        {
+            myTurn1 = myTurn;
+        }
+        public static void setMyTurn2(int myTurn)
+        {
+            myTurn2 = myTurn;
+        }
+        public static void whoStartsTheGame()
         {
             Random random = new Random();
             myTurn1 = random.Next(1, 10);
@@ -18,18 +36,55 @@ namespace Morabaraba
             if(myTurn1 == myTurn2)
                 whoStartsTheGame();
         }
-        public void createPlayers()
+        public static void createPlayers()
         {
             if(myTurn1 > myTurn2)
             {
-                Player player1 = new Player(true, true);//e alb si incepe
-                Player player2 = new Player(false, false);//e negru si asteapta randul
+                player1 = new Player(true, true,"player1");//e alb si incepe
+                player2 = new Player(false, false, "player2");//e negru si asteapta randul
             }
             else
             {
-                Player player1 = new Player(false, false);
-                Player player2 = new Player(true, true);
+                player1 = new Player(false, false, "player1");
+                player2 = new Player(true, true, "player2");
             }
         }
+        public static Player getActivePlayer()
+        {
+            if (player1.myTurn == true)
+                return player1;
+            else
+                return player2;
+        }
+        public static Player getInactivePlayer()
+        {
+            if (player1.myTurn == false)
+                return player1;
+            else
+                return player2;
+        }
+        public static void playerTurn(Player play1, Player play2, int indice)
+        {
+            play1.myHandCells.RemoveAt(indice-1);// posibil fara -1
+            play1.setMyTurn(false);
+            play2.setMyTurn(true);
+        }
+        /*public static void playerPlacing()
+        {
+            player1.myState = Player.PlayerState.Placing;
+            player2.myState = Player.PlayerState.Placing;
+            while (player1.myHandCells.Count > 0 && player2.myHandCells.Count > 0)
+            {
+                Player activePlayer = getActivePlayer();
+                Debug.WriteLine(activePlayer.getName());
+                Player inactivePlayer = getInactivePlayer();
+                playerTurn(activePlayer, inactivePlayer, activePlayer.myHandCells.Count);
+            }
+        }*/
+        public static void playerMoving()
+        {
+
+        }
+
     }
 }

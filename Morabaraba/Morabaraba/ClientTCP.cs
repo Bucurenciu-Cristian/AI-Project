@@ -26,21 +26,26 @@ namespace Morabaraba
 
                 // Create a TCP/IP  socket.
                 Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
                 // Connect the socket to the remote endpoint. Catch any errors.
                 try
                 {
                     // Connect to Remote EndPoint
                     sender.Connect(remoteEP);
                     playerNr++;
-                    Debug.WriteLine(playerNr);
+                    //Debug.WriteLine(playerNr);
                     Debug.WriteLine("Socket connected to {0}",sender.RemoteEndPoint.ToString());
                     // Encode the data string into a byte array.
                     byte[] msg = Encoding.ASCII.GetBytes(playerNr.ToString());
 
                     // Send the data through the socket.
+                    GamePlay.whoStartsTheGame();
+                    GamePlay.createPlayers();
                     int bytesSent = sender.Send(msg);
+                    msg = Encoding.ASCII.GetBytes(GamePlay.myTurn1.ToString());
+                    bytesSent = sender.Send(msg);
 
+                    msg = Encoding.ASCII.GetBytes(GamePlay.myTurn2.ToString());
+                    bytesSent = sender.Send(msg);
                     // Receive the response from the remote device.
                     //int bytesRec = sender.Receive(bytes);
                     //Debug.WriteLine("Echoed test = {0}",Encoding.ASCII.GetString(bytes, 0, bytesRec));

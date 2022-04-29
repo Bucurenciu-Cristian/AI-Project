@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,8 @@ namespace Morabaraba
 
         private void buttonPC_Click(object sender, EventArgs e)
         {
-            Game.game.Show();
+            Game game = new Game(Game.GameState.AgainstPC,1);
+            game.Show();
         }
     }
 }

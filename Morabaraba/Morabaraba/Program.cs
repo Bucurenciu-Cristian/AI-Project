@@ -34,7 +34,7 @@ namespace Morabaraba
                     {
                         ClientTCP.StartClient();
                         MessageBox.Show("jocul poate incepe!");
-                        Application.Run(new Game());
+                        Application.Run(new Game(Game.GameState.AgainstPlayer,2));
                     }
                 }
                 finally
