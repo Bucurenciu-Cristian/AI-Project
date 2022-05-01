@@ -13,6 +13,7 @@ namespace Morabaraba
 {
     internal class ServerTCP
     {
+        public static Socket serverSocket;
         public static void StartServer()
         {
             // Get Host IP Address that is used to establish a connection
@@ -33,7 +34,7 @@ namespace Morabaraba
                 Debug.WriteLine("Waiting for a connection...");
                 DialogResult result = MessageBox.Show("Se asteapta conectarea jucatorilor");
                 Socket handler = listener.Accept();
-
+                ServerTCP.setSocket(handler);
                 // Incoming data from the client.
                 string data = null;
                 byte[] bytes = null;
@@ -52,13 +53,21 @@ namespace Morabaraba
                 myturn1 = myturn1 / 10;
                 GamePlay.setMyTurn1(myturn1);
                 GamePlay.setMyTurn2(myturn2);
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
+                //handler.Shutdown(SocketShutdown.Both);
+                //handler.Close();
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.ToString());
             }
+        }
+        public static void setSocket(Socket socket)
+        {
+            serverSocket = socket;
+        }
+        public static Socket getSocket()
+        {
+            return serverSocket;
         }
     }
 }

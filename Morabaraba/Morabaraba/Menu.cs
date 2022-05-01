@@ -33,6 +33,7 @@ namespace Morabaraba
         private void buttonPC_Click(object sender, EventArgs e)
         {
             Game game = new Game(Game.GameState.AgainstPC,1);
+            game.InitalizeGame();
             game.Show();
         }
     }

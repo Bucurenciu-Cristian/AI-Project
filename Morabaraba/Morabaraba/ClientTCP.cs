@@ -11,6 +11,7 @@ namespace Morabaraba
 {
     internal class ClientTCP
     {
+        public static Socket clientSocket;
         public static int playerNr = 1;
         public static void StartClient()
         {
@@ -26,11 +27,13 @@ namespace Morabaraba
 
                 // Create a TCP/IP  socket.
                 Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
                 // Connect the socket to the remote endpoint. Catch any errors.
                 try
                 {
                     // Connect to Remote EndPoint
                     sender.Connect(remoteEP);
+                    ClientTCP.setSocket(sender);
                     playerNr++;
                     //Debug.WriteLine(playerNr);
                     Debug.WriteLine("Socket connected to {0}",sender.RemoteEndPoint.ToString());
@@ -46,13 +49,14 @@ namespace Morabaraba
 
                     msg = Encoding.ASCII.GetBytes(GamePlay.myTurn2.ToString());
                     bytesSent = sender.Send(msg);
+
+                    //bytesSent = sender.Send(msg);
                     // Receive the response from the remote device.
                     //int bytesRec = sender.Receive(bytes);
                     //Debug.WriteLine("Echoed test = {0}",Encoding.ASCII.GetString(bytes, 0, bytesRec));
-
                     // Release the socket.
-                    sender.Shutdown(SocketShutdown.Both);
-                    sender.Close();
+                    //sender.Shutdown(SocketShutdown.Both);
+                    //sender.Close();
 
                 }
                 catch (ArgumentNullException ane)
@@ -73,6 +77,14 @@ namespace Morabaraba
             {
                 Debug.WriteLine(e.ToString());
             }
+        }
+        public static void setSocket(Socket socket)
+        {
+            clientSocket = socket;
+        }
+        public static Socket getSocket()
+        {
+            return clientSocket;
         }
     }
 }

@@ -32,9 +32,11 @@ namespace Morabaraba
                     }
                     else if (count == 2)
                     {
-                        ClientTCP.StartClient();
+                        //ClientTCP.StartClient();
+                        Game game2 = new Game(Game.GameState.AgainstPlayer, 2);
+                        game2.InitalizeGame();
                         MessageBox.Show("jocul poate incepe!");
-                        Application.Run(new Game(Game.GameState.AgainstPlayer,2));
+                        Application.Run(game2);               
                     }
                 }
                 finally

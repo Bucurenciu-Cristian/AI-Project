@@ -42,9 +42,10 @@ namespace Morabaraba
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            ServerTCP.StartServer();
-            Game game = new Game(Game.GameState.AgainstPlayer,1);
-            game.Show();
+            //ServerTCP.StartServer();
+            Game game1 = new Game(Game.GameState.AgainstPlayer,1);
+            game1.InitalizeGame();
+            game1.Show();
         }
 
         private void buttonExit_Click(object sender, EventArgs e)

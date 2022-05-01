@@ -52,6 +52,7 @@
             this.textBoxGameLog.Location = new System.Drawing.Point(1014, 208);
             this.textBoxGameLog.Multiline = true;
             this.textBoxGameLog.Name = "textBoxGameLog";
+            this.textBoxGameLog.ReadOnly = true;
             this.textBoxGameLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBoxGameLog.Size = new System.Drawing.Size(356, 183);
             this.textBoxGameLog.TabIndex = 1;

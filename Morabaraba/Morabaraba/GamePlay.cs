@@ -69,22 +69,5 @@ namespace Morabaraba
             play1.setMyTurn(false);
             play2.setMyTurn(true);
         }
-        /*public static void playerPlacing()
-        {
-            player1.myState = Player.PlayerState.Placing;
-            player2.myState = Player.PlayerState.Placing;
-            while (player1.myHandCells.Count > 0 && player2.myHandCells.Count > 0)
-            {
-                Player activePlayer = getActivePlayer();
-                Debug.WriteLine(activePlayer.getName());
-                Player inactivePlayer = getInactivePlayer();
-                playerTurn(activePlayer, inactivePlayer, activePlayer.myHandCells.Count);
-            }
-        }*/
-        public static void playerMoving()
-        {
-
-        }
-
     }
 }
