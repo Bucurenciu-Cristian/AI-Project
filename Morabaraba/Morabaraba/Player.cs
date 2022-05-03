@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Morabaraba
 {
-    internal class Player
+    public class Player
     {
         //culoare
         //nr piese
@@ -21,61 +21,106 @@ namespace Morabaraba
             Taking,//pentru moara sa ia piesa adversarului
             Flying
         }
-        public bool myTurn { get; set; }
-        public bool myColor { get;private set; }//0 alb, 1 negru care are mai mare valoarea la un random ia alb
-        public List<BoardCell> myHandCells = new List<BoardCell>();
-        public List<BoardCell> myBoardCells = new List<BoardCell>();// variabila de tinut minte o celula pe care am apasat-o pentru miscare
+        private bool myTurn;
+        private bool myColor;//0 alb, 1 negru care are mai mare valoarea la un random ia alb
+        private List<BoardCell> myHandCells;
+        private List<BoardCell> myBoardCells;// variabila de tinut minte o celula pe care am apasat-o pentru miscare
         // cell apasat ( selectata ) = new cell, daca e apasata aceeasi celula de 2 ori sa o deselecteze 
-        public PlayerState myState { get; set; }
-
-        public Mill[] myMills = new Mill[4];
-
-        public string name = "";
+        private PlayerState myState;
+        private Mill[] myMills;
+        private string myName = "";
         public Player(bool myTurn, bool myColor, string name)
         {
             this.myTurn = myTurn;
             this.myColor = myColor;
             myState = PlayerState.Placing;
-            this.name = name;
-            initializeMills();
-            initializeHandCells();
+            this.myName = name;
+            this.myHandCells = new List<BoardCell>();
+            this.myBoardCells = new List<BoardCell>();
+            this.myMills = new Mill[4];
+            InitializeMills();
+            InitializeHandCells();
         }
-
-        public void initializeMills()
+        public void InitializeMills()
         {
             for(int i= 0; i < myMills.Length; i++)
             {
                 myMills[i] = new Mill();
             }
         }
-        public void initializeHandCells()
+        public void InitializeHandCells()
         {
             for(int i=0;i<12;i++)//12 vaci are fiecare player
             {
                 myHandCells.Add(new BoardCell());
             }
         }
-
-        public System.Drawing.Bitmap getMyColor()
+        public System.Drawing.Bitmap DrawMyColor()
         {
-            if(myColor == false)
+            if (myColor == false)
             {
                 return Properties.Resources.blackPiece;
             }
             else
             {
                 return Properties.Resources.whitePiece;
-            }        
+            }
         }
-
-        internal void setMyTurn(bool v)
+        public bool GetMyTurn()
         {
-            this.myTurn=v;
+            return myTurn;
         }
-
-        public string getName()
+        public void SetMyTurn(bool myTurn)
         {
-            return this.name;
+            this.myTurn = myTurn;
+        }
+        public bool GetMyColor()
+        {
+            return myColor;
+        }
+        public void SetMyColor(bool myColor)
+        {
+            this.myColor = myColor;
+        }
+        public List<BoardCell> GetMyHandCells()
+        {
+            return this.myHandCells;
+        }
+        public void SetMyHandCells(List<BoardCell> myHandCells)
+        {
+            this.myHandCells = myHandCells;
+        }
+        public List<BoardCell> GetMyBoardCells()
+        {
+            return this.myBoardCells;
+        }
+        public void SetMyBoardCells(List<BoardCell> myBoardCells)
+        {
+            this.myBoardCells = myBoardCells;
+        }
+        public Mill[] GetMyMills()
+        {
+            return this.myMills;
+        }
+        public void SetMyMills(Mill[] myMills)
+        {
+            this.myMills = myMills;
+        }
+        public PlayerState GetMyState()
+        {
+            return myState;
+        }
+        public void SetMyState(PlayerState myState)
+        {
+            myState = this.myState;
+        }
+        public string GetMyName()
+        {
+            return this.myName;
+        }
+        public void SetMyName(string myName)
+        {
+            this.myName = myName;
         }
     }
 }

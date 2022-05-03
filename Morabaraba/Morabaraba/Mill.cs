@@ -6,24 +6,41 @@ using System.Threading.Tasks;
 
 namespace Morabaraba
 {
-    internal class Mill
+    public class Mill
     {
         //vecini id piese le tine deja minte
         //e noua deci poti lua o piesa a adversarului
         //culoare e nevoie?
         //la desfacere mill[i] = null;
-        bool isNew;
-        List<BoardCell> millCells = new List<BoardCell>();
+        private bool isNew;
+        private List<BoardCell> millCells;
         public Mill()
         {
 
         }
-        public Mill(bool color, BoardCell cell1, BoardCell cell2, BoardCell cell3)
+        public Mill( BoardCell cell1, BoardCell cell2, BoardCell cell3)
         {
+            millCells = new List<BoardCell>();
             this.millCells.Add(cell1);
             this.millCells.Add(cell2);
             this.millCells.Add(cell3);
             this.isNew = true;//dupa luat piesa il punem pe fals
+        }
+        public bool GetIsNew()
+        {
+            return this.isNew;
+        }
+        public List<BoardCell> GetMillCells()
+        {
+            return this.millCells;
+        }
+        public void SetIsNew(bool isNew)
+        {
+            this.isNew = isNew;
+        }
+        public void SetMillCells(List<BoardCell> millCells)
+        {
+            this.millCells = millCells;
         }
     }
 }

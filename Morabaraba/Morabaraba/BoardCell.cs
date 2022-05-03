@@ -7,13 +7,19 @@ using System.Windows.Forms;
 
 namespace Morabaraba
 {
-    internal class BoardCell
+    public class BoardCell
     {
-        public int id { get; private set; }
+        private int id;
         private int[] neighbors;
-        public System.Drawing.Point Location;
-        public CellState State { get; set; }
-        private bool partOfThree { get; set; }// daca se afla in una din morile playerilor
+        private System.Drawing.Point Location;
+        public enum CellState
+        {
+            Empty,
+            BlackOccupied,
+            WhiteOccupied
+        }
+        private CellState state;
+        private bool partOfThree;// daca se afla in una din morile playerilor
 
         public BoardCell(){}
 
@@ -21,34 +27,56 @@ namespace Morabaraba
         {
             this.id = id;
             this.neighbors = neighbors;
-            State = CellState.Empty;
+            state = CellState.Empty;
         }
 
-        public void setX_Position(int xPosition)
+        public void SetX_Position(int xPosition)
         {
             this.Location.X = xPosition;
         }
 
-        public int getX_Position()
+        public int GetX_Position()
         {
             return this.Location.X;
         }
 
-        public void setY_Position(int yPosition)
+        public void SetY_Position(int yPosition)
         {
             this.Location.Y = yPosition;
         }
 
-        public int getY_Position()
+        public int GetY_Position()
         {
             return this.Location.Y;
         }
 
-        public int[] getNeighbors()
+        public int[] GetNeighbors()
         {
             return this.neighbors;
         }
-
-
+        public int GetId()
+        {
+            return this.id;
+        }
+        public void SetId(int id)
+        {
+            this.id = id;
+        }
+        public CellState GetState()
+        {
+            return this.state;
+        }
+        public void SetState(CellState state)
+        {
+            this.state = state;
+        }
+        public bool GetPartOfThree()
+        {
+            return this.partOfThree;
+        }
+        public void SetPartOfThree(bool isPart)
+        {
+            this.partOfThree = isPart;
+        }
     }
 }

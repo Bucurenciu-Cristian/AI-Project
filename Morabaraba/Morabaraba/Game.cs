@@ -15,7 +15,7 @@ namespace Morabaraba
 {
     public partial class Game : Form
     {
-        private Board board;
+        private static Board board;
         private PictureBox pictureBox;
         private GameState gameState;
         private Socket socket;//serverSocket vs clientSocket
@@ -41,10 +41,10 @@ namespace Morabaraba
             pictureBox.Location = new System.Drawing.Point(0,0);
             pictureBox.MouseClick += PictureBox_MouseClick;
 
-            for (int i = 0; i < board.panels.Length; i++)
+            for (int i = 0; i < board.GetPanels().Length; i++)
             {
-                board.panels[i].MouseClick += Game_MouseClick;
-                this.Controls.Add(board.panels[i]);
+                board.GetPanels()[i].MouseClick += Game_MouseClick;
+                this.Controls.Add(board.GetPanels()[i]);
             }
             this.Controls.Add(pictureBox);
             this.playerIndex = playerIndex;
@@ -66,7 +66,7 @@ namespace Morabaraba
                 {
                     GamePlay.whoStartsTheGame();
                     GamePlay.createPlayers();
-                    SetPlayerName(GamePlay.player1.getName(), "PC");
+                    SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "PC");
                 }
                 else if (gameState == GameState.AgainstPlayer)//host
                 {
@@ -98,10 +98,10 @@ namespace Morabaraba
                     //Debug.WriteLine(data);
                     string[] val = new string[2];
                     val = data.Split(' ');
-                    GamePlay.setMyTurn1(int.Parse(val[0].Trim()));
-                    GamePlay.setMyTurn2(int.Parse(val[1].Trim()));
+                    GamePlay.SetMyTurn1(int.Parse(val[0].Trim()));
+                    GamePlay.SetMyTurn2(int.Parse(val[1].Trim()));
                     GamePlay.createPlayers();
-                    SetPlayerName(GamePlay.player1.getName(), "");
+                    SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "");
                     data = "";
                 }
             }
@@ -141,45 +141,60 @@ namespace Morabaraba
                     }
                     GamePlay.whoStartsTheGame();
                     GamePlay.createPlayers();
-                    socket.Send(Encoding.ASCII.GetBytes(GamePlay.myTurn1.ToString() + " " + GamePlay.myTurn2.ToString()));
-                    SetPlayerName(GamePlay.player2.getName(), "");
+                    socket.Send(Encoding.ASCII.GetBytes(GamePlay.GetMyTurn1().ToString() + " " + GamePlay.GetMyTurn2().ToString()));
+                    SetPlayerName(GamePlay.GetPlayer2().GetMyName(), "");
                 }
             }
-            SetPlayerTurn(GamePlay.myTurn1, GamePlay.myTurn2);
-            SetTextFromTextBox("Playerul " + GamePlay.player1.getName() + " are randul " + GamePlay.player1.myTurn + " si culoarea " + (GamePlay.player1.myColor == true ? "alb" : "negru") + "\r\n");
-            SetTextFromTextBox("Playerul " + GamePlay.player2.getName() + " are randul " + GamePlay.player2.myTurn + " si culoarea " + (GamePlay.player2.myColor == true ? "alb" : "negru") + "\r\n");
+            SetPlayerTurn(GamePlay.GetMyTurn1(), GamePlay.GetMyTurn2());
+            SetTextFromTextBox("Playerul " + GamePlay.GetPlayer1().GetMyName() + " are randul " + GamePlay.GetPlayer1().GetMyTurn() + " si culoarea " + (GamePlay.GetPlayer1().GetMyColor() == true ? "alb" : "negru") + "\r\n");
+            SetTextFromTextBox("Playerul " + GamePlay.GetPlayer2().GetMyName() + " are randul " + GamePlay.GetPlayer2().GetMyTurn() + " si culoarea " + (GamePlay.GetPlayer2().GetMyColor() == true ? "alb" : "negru") + "\r\n");
         }
         public void PlacingAgainstPlayer(object sender)
         {
             string currentPlayerName = labelName1.Text;
             Player activePlayer = GamePlay.getActivePlayer();
-            string activePlayerName = activePlayer.getName();
+            string activePlayerName = activePlayer.GetMyName();
             Player inactivePlayer = GamePlay.getInactivePlayer();
-            string inactivePlayerName = inactivePlayer.getName();
-            if (inactivePlayer.myState == Player.PlayerState.Placing || activePlayer.myState == Player.PlayerState.Placing)
+            string inactivePlayerName = inactivePlayer.GetMyName();
+            if (inactivePlayer.GetMyState() == Player.PlayerState.Placing || activePlayer.GetMyState() == Player.PlayerState.Placing)
             {
-                Debug.WriteLine(GamePlay.getActivePlayer().getName() + " player care poate pune piesa");
-                Debug.WriteLine(currentPlayerName + " player care vrea sa puna piesa");
+                //Debug.WriteLine(GamePlay.getActivePlayer().GetMyName() + " player care poate pune piesa");
+                //Debug.WriteLine(currentPlayerName + " player care vrea sa puna piesa");
                 if (currentPlayerName.CompareTo(activePlayerName) == 0)
                 {
                     var panel = sender as Panel;
                     if (null != panel)
                     {
-                        if (activePlayer.myHandCells.Count() > 0)
+                        if (activePlayer.GetMyHandCells().Count() > 0)
                         {
-                            if (board.cells.ElementAt(Int32.Parse(panel.Name) - 1).State == CellState.Empty)
+                            if (board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1).GetState() == BoardCell.CellState.Empty)
                             {
-                                board.panels[Int32.Parse(panel.Name) - 1].BackgroundImage = GamePlay.getActivePlayer().getMyColor();
-                                bool color = activePlayer.myColor;
-                                board.cells.ElementAt(Int32.Parse(panel.Name) - 1).State = color == true ? CellState.WhiteOccupied : CellState.BlackOccupied;
-                                board.updateCells();
-                                GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.myHandCells.Count);
-                                SetTextFromTextBox("Mai ai " + activePlayer.myHandCells.Count + " piese de pus" + "\r\nAcum e randul la " + inactivePlayerName + "\r\n");
+                                board.GetPanels()[Int32.Parse(panel.Name) - 1].BackgroundImage = GamePlay.getActivePlayer().DrawMyColor();
+                                activePlayer.GetMyBoardCells().Add(board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1));//piesele mele de pe board
+                                bool color = activePlayer.GetMyColor();
+                                board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1).SetState( color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                                board.UpdateCells();
+                                if(activePlayer.GetMyBoardCells().Count() > 2)
+                                {
+                                    //Debug.WriteLine(activePlayer.GetMyName() +" "+ activePlayer.GetMyBoardCells().Count());
+                                    GamePlay.CheckForMill(activePlayer, board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1));//verificare moara
+                                    for(int i=0; i < activePlayer.GetMyMills().Count(); i++)
+                                    {
+                                        if(GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
+                                        {
+                                            MessageBox.Show("Felicitari ati facut o moara! Luati o piesa a adversarului.");
+                                            activePlayer.GetMyMills()[i].SetIsNew(false);// nu mai e noua 
+                                        }
+                                    }
+                                }
+                                GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
+                                SetTextFromTextBox("Mai ai " + activePlayer.GetMyHandCells().Count + " piese de pus" + "\r\nAcum e randul la " + inactivePlayerName + "\r\n");
                                 socket.Send(Encoding.ASCII.GetBytes((Int32.Parse(panel.Name) - 1).ToString()));
-                                if (activePlayer.myHandCells.Count == 0)
+
+                                if (activePlayer.GetMyHandCells().Count == 0)
                                 {
                                     MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare");
-                                    activePlayer.myState = Player.PlayerState.Moving;
+                                    activePlayer.SetMyState(Player.PlayerState.Moving);
                                 }
                             }
                             else
@@ -195,7 +210,7 @@ namespace Morabaraba
                 }
                 else
                 {
-                    if (activePlayer.myHandCells.Count() > 0)
+                    if (activePlayer.GetMyHandCells().Count() > 0)
                     {
                         messageReceiver.RunWorkerAsync();
                         while (data.CompareTo("") == 0)
@@ -203,12 +218,16 @@ namespace Morabaraba
 
                         }
                         int panelIndex = int.Parse(data);
-                        board.panels[panelIndex].BackgroundImage = GamePlay.getActivePlayer().getMyColor();
-                        bool color = activePlayer.myColor;
-                        board.cells.ElementAt(panelIndex).State = color == true ? CellState.WhiteOccupied : CellState.BlackOccupied;
-                        board.updateCells();
-                        GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.myHandCells.Count);
+                        board.GetPanels()[panelIndex].BackgroundImage = GamePlay.getActivePlayer().DrawMyColor();
+                        bool color = activePlayer.GetMyColor();
+                        board.GetCells().ElementAt(panelIndex).SetState( color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        board.UpdateCells();
+                        GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
                         data = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare");
                     }
                 }
             }
@@ -227,6 +246,8 @@ namespace Morabaraba
             if(this.gameState == GameState.AgainstPlayer)
             {
                 PlacingAgainstPlayer(sender);
+                //CheckForMill -> Taking
+                //MovingAgainstPlayer
             }
             else
             {
@@ -263,6 +284,10 @@ namespace Morabaraba
             int bytesRec = socket.Receive(bytes);
             Game.data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
             //Debug.WriteLine(data);
+        }
+        public static Board GetBoard()
+        {
+            return board;
         }
     }
 }
