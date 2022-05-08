@@ -64,8 +64,8 @@ namespace Morabaraba
             {
                 if (gameState == GameState.AgainstPC)
                 {
-                    GamePlay.whoStartsTheGame();
-                    GamePlay.createPlayers();
+                    GamePlay.WhoStartsTheGame();
+                    GamePlay.CreatePlayers();
                     SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "PC");
                 }
                 else if (gameState == GameState.AgainstPlayer)//host
@@ -100,7 +100,7 @@ namespace Morabaraba
                     val = data.Split(' ');
                     GamePlay.SetMyTurn1(int.Parse(val[0].Trim()));
                     GamePlay.SetMyTurn2(int.Parse(val[1].Trim()));
-                    GamePlay.createPlayers();
+                    GamePlay.CreatePlayers();
                     SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "");
                     data = "";
                 }
@@ -139,8 +139,8 @@ namespace Morabaraba
                     {
                         Debug.WriteLine(e.ToString());
                     }
-                    GamePlay.whoStartsTheGame();
-                    GamePlay.createPlayers();
+                    GamePlay.WhoStartsTheGame();
+                    GamePlay.CreatePlayers();
                     socket.Send(Encoding.ASCII.GetBytes(GamePlay.GetMyTurn1().ToString() + " " + GamePlay.GetMyTurn2().ToString()));
                     SetPlayerName(GamePlay.GetPlayer2().GetMyName(), "");
                 }
@@ -152,9 +152,9 @@ namespace Morabaraba
         public void PlacingAgainstPlayer(object sender)
         {
             string currentPlayerName = labelName1.Text;
-            Player activePlayer = GamePlay.getActivePlayer();
+            Player activePlayer = GamePlay.GetActivePlayer();
             string activePlayerName = activePlayer.GetMyName();
-            Player inactivePlayer = GamePlay.getInactivePlayer();
+            Player inactivePlayer = GamePlay.GetInactivePlayer();
             string inactivePlayerName = inactivePlayer.GetMyName();
             if (inactivePlayer.GetMyState() == Player.PlayerState.Placing || activePlayer.GetMyState() == Player.PlayerState.Placing)
             {
@@ -167,17 +167,17 @@ namespace Morabaraba
                     {
                         if (activePlayer.GetMyHandCells().Count() > 0)
                         {
-                            if (board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1).GetState() == BoardCell.CellState.Empty)
+                            if (board.GetCells().ElementAt(Int32.Parse(panel.Name)).GetState() == BoardCell.CellState.Empty)
                             {
-                                board.GetPanels()[Int32.Parse(panel.Name) - 1].BackgroundImage = GamePlay.getActivePlayer().DrawMyColor();
-                                activePlayer.GetMyBoardCells().Add(board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1));//piesele mele de pe board
+                                board.GetPanels()[Int32.Parse(panel.Name)].BackgroundImage = GamePlay.GetActivePlayer().DrawMyColor();
+                                activePlayer.GetMyBoardCells().Add(board.GetCells().ElementAt(Int32.Parse(panel.Name)));//piesele mele de pe board
                                 bool color = activePlayer.GetMyColor();
-                                board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1).SetState( color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                                board.GetCells().ElementAt(Int32.Parse(panel.Name)).SetState( color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                                 board.UpdateCells();
                                 if(activePlayer.GetMyBoardCells().Count() > 2)
                                 {
                                     //Debug.WriteLine(activePlayer.GetMyName() +" "+ activePlayer.GetMyBoardCells().Count());
-                                    GamePlay.CheckForMill(activePlayer, board.GetCells().ElementAt(Int32.Parse(panel.Name) - 1));//verificare moara
+                                    GamePlay.CheckForMill(activePlayer, board.GetCells().ElementAt(Int32.Parse(panel.Name)));//verificare moara
                                     for(int i=0; i < activePlayer.GetMyMills().Count(); i++)
                                     {
                                         if(GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
@@ -187,9 +187,9 @@ namespace Morabaraba
                                         }
                                     }
                                 }
-                                GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
+                                GamePlay.PlayerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
                                 SetTextFromTextBox("Mai ai " + activePlayer.GetMyHandCells().Count + " piese de pus" + "\r\nAcum e randul la " + inactivePlayerName + "\r\n");
-                                socket.Send(Encoding.ASCII.GetBytes((Int32.Parse(panel.Name) - 1).ToString()));
+                                socket.Send(Encoding.ASCII.GetBytes((Int32.Parse(panel.Name)).ToString()));
 
                                 if (activePlayer.GetMyHandCells().Count == 0)
                                 {
@@ -218,11 +218,11 @@ namespace Morabaraba
 
                         }
                         int panelIndex = int.Parse(data);
-                        board.GetPanels()[panelIndex].BackgroundImage = GamePlay.getActivePlayer().DrawMyColor();
+                        board.GetPanels()[panelIndex].BackgroundImage = GamePlay.GetActivePlayer().DrawMyColor();
                         bool color = activePlayer.GetMyColor();
                         board.GetCells().ElementAt(panelIndex).SetState( color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                         board.UpdateCells();
-                        GamePlay.playerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
+                        GamePlay.PlayerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
                         data = "";
                     }
                     else

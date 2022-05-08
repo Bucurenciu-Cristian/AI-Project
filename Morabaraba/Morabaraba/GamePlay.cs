@@ -14,21 +14,23 @@ namespace Morabaraba
         private static int myTurn2;
         private static Player player1;
         private static Player player2;
-        private static List<BoardCell> millCells = new List<BoardCell>();
+        private static Mill mill;
         public GamePlay()
         {
 
         }
-        public static void whoStartsTheGame()
+        public static void WhoStartsTheGame()
         {
             Random random = new Random();
             myTurn1 = random.Next(1, 10);
             myTurn2 = random.Next(1, 10);
             if (myTurn1 == myTurn2)
-                whoStartsTheGame();
+                WhoStartsTheGame();
         }
-        public static void createPlayers()
+        public static void CreatePlayers()
         {
+            mill = new Mill();
+            mill.SetMillCells(new List<BoardCell>());
             if(myTurn1 > myTurn2)
             {
                 player1 = new Player(true, true,"player1");//e alb si incepe
@@ -40,88 +42,166 @@ namespace Morabaraba
                 player2 = new Player(true, true, "player2");
             }
         }
-        public static Player getActivePlayer()
+        public static Player GetActivePlayer()
         {
             if (player1.GetMyTurn() == true)
                 return player1;
             else
                 return player2;
         }
-        public static Player getInactivePlayer()
+        public static Player GetInactivePlayer()
         {
             if (player1.GetMyTurn() == false)
                 return player1;
             else
                 return player2;
         }
-        public static void playerTurn(Player play1, Player play2, int indice)
+        public static void PlayerTurn(Player play1, Player play2, int indice)
         {
-            play1.GetMyHandCells().RemoveAt(indice-1);// posibil fara -1
+            play1.GetMyHandCells().RemoveAt(indice-1);
             play1.SetMyTurn(false);
             play2.SetMyTurn(true);
         }
-        public static void CheckForMill(Player activePlayer, BoardCell cell)
+        public static void CheckForMillCorner(Player activePlayer, BoardCell cell)
         {
+            // trei puncte sunt coliniare daca aria triunghiului format de cele 3 puncte = 0
+            // poti face 2/3 mori deodata
+            Debug.WriteLine("CheckForMillCorner");
             BoardCell currentCell = cell;
             List<BoardCell> allCells = Game.GetBoard().GetCells();
             Debug.WriteLine("celula " + currentCell.GetId() + " are " + currentCell.GetNeighbors().Length + " vecini:");
             foreach (int neighbor in currentCell.GetNeighbors())
             {
-                Debug.WriteLine(neighbor);
+                Debug.Write(neighbor+ " ");
             }
+            Debug.WriteLine("");
+            mill.GetMillCells().Add(currentCell);
+            Debug.WriteLine("Am adaugat " + currentCell.GetId());
+            currentCell.SetIsVisited();
+            for (int i = 0; i < mill.GetMillCells().Count; i++)
+                Debug.WriteLine(mill.GetMillCells()[i].GetId() + " ");
+            if (mill.GetMillCells().Count > 2)
+            {
+                double Area = CalculateTriangleArea();
+                Debug.WriteLine("Aria: " + Area);
+                if (Area == 0.0)
+                {
+
+                    for (int j = 0; j < activePlayer.GetMyMills().Length; j++)
+                    {
+                        if (activePlayer.GetMyMills()[j].GetIsNew() == false)
+                        {
+                            activePlayer.GetMyMills()[j] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
+                            Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
+                            break;
+                        }
+                    }
+                } 
+                Debug.WriteLine("am scos pe " + mill.GetMillCells().ElementAt(2).GetId());
+                mill.GetMillCells()[2].ResetIsVisited();
+                mill.GetMillCells().RemoveAt(2);
+                return;
+            }
+            else
+            {
+                for (int i = 0; i < currentCell.GetNeighbors().Length; i++)
+                {
+                    BoardCell checkedCell = allCells.ElementAt(currentCell.GetNeighbors()[i]);
+                    if (CheckPlayerHasCell(activePlayer, checkedCell.GetId()) && (checkedCell.GetIsVisited() == false))
+                    {
+                        CheckForMillCorner(activePlayer, checkedCell);//merg mai departe in adancime
+                    }
+                }
+                if (mill.GetMillCells().Count > 1 )// am ajuns la sfarsitul vecinilor si nu am gasit urmatoarea piesa
+                {
+                    Debug.WriteLine("am scos pe " + mill.GetMillCells().ElementAt(1).GetId());
+                    mill.GetMillCells()[1].ResetIsVisited();
+                    mill.GetMillCells().RemoveAt(1);
+                    return;
+                }
+            }
+        }
+        public static void CheckForMillMiddle(Player activePlayer, BoardCell cell)
+        {
+            Debug.WriteLine("CheckForMillMiddle");
+            BoardCell currentCell = cell;
+            List<BoardCell> allCells = Game.GetBoard().GetCells();
             for (int i = 0; i < currentCell.GetNeighbors().Length; i++)
             {
-                // trei puncte sunt coliniare daca aria triunghiului format de cele 3 puncte = 0
-                // poti face 2 mori deodata
-                BoardCell checkedCell = allCells.ElementAt(currentCell.GetNeighbors()[i]-1);
-                Debug.WriteLine(checkedCell.GetId()+" vecin");
-                if (CheckPlayerHasCell(activePlayer, checkedCell.GetId()) && CheckNotSame(currentCell))
+                if (CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[i]))
                 {
-                    Debug.WriteLine("Am adaugat celula " + currentCell.GetId());
-                    millCells.Add(currentCell);
-                    //sa fie diferit de ce am adaugat pana acum
-                    if (millCells.Count > 2)
+                    mill.GetMillCells().Add(currentCell);
+                    mill.GetMillCells().Add(allCells.ElementAt(currentCell.GetNeighbors()[i]));
+                    for (int j = 0; j < currentCell.GetNeighbors().Length && j!=i; j++)
                     {
-                        Debug.WriteLine("a intrat0000000000000000000000000");
-                        //calculeaza arie
-                        double Area = CalculateTriangleArea();
-                        Debug.WriteLine("Aria: " + Area);
-                        if (Area == 0.0)
-                        //createMill pe locul gol
+                        Debug.WriteLine(mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j])));
+                        bool contains = mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j]));
+                        Debug.WriteLine(currentCell.GetNeighbors()[j]);
+                        if ((CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[j])==true) && contains == false)
                         {
-                            for(int j=0;j<activePlayer.GetMyMills().Length;j++)
+                            mill.GetMillCells().Add(allCells.ElementAt(currentCell.GetNeighbors()[j]) );
+                            double Area = CalculateTriangleArea();
+                            Debug.WriteLine("Aria: " + Area);
+                            if (Area == 0.0)
                             {
-                                if (activePlayer.GetMyMills()[j].GetIsNew()==false)
+                                for (int k = 0; k < activePlayer.GetMyMills().Length; k++)
                                 {
-                                    activePlayer.GetMyMills()[j] = new Mill(millCells.ElementAt(0), millCells.ElementAt(1), millCells.ElementAt(2));
-                                    Debug.WriteLine("a creat moara din " + millCells.ElementAt(0).GetId() +" "+ millCells.ElementAt(1).GetId() + " " + millCells.ElementAt(2).GetId());
-                                    break;
+                                    if (activePlayer.GetMyMills()[k].GetIsNew() == false)
+                                    {
+                                        activePlayer.GetMyMills()[k] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
+                                        Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
+                                        break;
+                                    }
                                 }
                             }
+                            mill.GetMillCells().RemoveAt(2);
                         }
-                        //goleste lista
-                        millCells.Clear();
                     }
-                    else
-                    {
-                       CheckForMill(activePlayer, checkedCell);//merg mai departe in adancime
-                    }                 
+                    mill.GetMillCells().Clear();
+                }
+            }
+        }
+        public static void CheckForMill(Player activePlayer, BoardCell cell)
+        {
+            BoardCell.CellPosition position = cell.GetCellPosition();
+            switch (position)
+            {
+                case BoardCell.CellPosition.Corner:
+                {
+                    Debug.WriteLine("----------------------------");
+                    CheckForMillCorner(activePlayer, cell);
+                    mill.GetMillCells()[0].ResetIsVisited();
+                    mill.GetMillCells().RemoveAt(0);
+                    break;
+                }
+                case BoardCell.CellPosition.Middle:
+                {
+                    Debug.WriteLine("******************************");
+                    CheckForMillMiddle(activePlayer, cell);
+                    break ;
+                }
+                case BoardCell.CellPosition.Both:
+                {
+                    Debug.WriteLine("*******************************");
+                    CheckForMillMiddle(activePlayer, cell);
+                    Debug.WriteLine("----------------------------");
+                    CheckForMillCorner(activePlayer, cell);
+                    mill.GetMillCells()[0].ResetIsVisited();
+                    mill.GetMillCells().RemoveAt(0);
+                    break;
                 }
             }
         }
 
         public static double CalculateTriangleArea()
-        {
-            // formula lui Heron cu semiperimetru
-            // latura distanta dintre 2 puncte
-            // cell(0) e vecin cu cell(1) si cell(1) vecin cu cell(2) 
-            double[] sideLength = new double[3];
-            double x1 = millCells.ElementAt(0).GetX_Position();
-            double y1 = millCells.ElementAt(0).GetY_Position();
-            double x2 = millCells.ElementAt(1).GetX_Position();
-            double y2 = millCells.ElementAt(1).GetY_Position();
-            double x3 = millCells.ElementAt(2).GetX_Position();
-            double y3 = millCells.ElementAt(2).GetY_Position();
+        { 
+            double[] sideLength = new double[3];//calcul laturi pentru heron
+            double x1 = mill.GetMillCells().ElementAt(0).GetX_Position();
+            double y1 = mill.GetMillCells().ElementAt(0).GetY_Position();
+            double x2 = mill.GetMillCells().ElementAt(1).GetX_Position();
+            double y2 = mill.GetMillCells().ElementAt(1).GetY_Position();
+            double x3 = mill.GetMillCells().ElementAt(2).GetX_Position();
+            double y3 = mill.GetMillCells().ElementAt(2).GetY_Position();
             sideLength[0] = Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2));//a
             sideLength[1] = Math.Sqrt(Math.Pow((x3 - x2), 2) + Math.Pow((y3 - y2), 2));//b
             sideLength[2] = Math.Sqrt(Math.Pow((x3 - x1), 2) + Math.Pow((y3 - y1), 2));//c
@@ -151,14 +231,6 @@ namespace Morabaraba
                 return CheckIsNew(mill);
             }
             return false;
-        }
-        public static bool CheckNotSame(BoardCell cell)
-        {
-            if(millCells.Contains(cell))
-            {
-                return false;
-            }
-            return true;
         }
         public static void SetMyTurn1(int myTurn)
         {

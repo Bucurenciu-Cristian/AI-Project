@@ -42,5 +42,10 @@ namespace Morabaraba
         {
             this.millCells = millCells;
         }
+        public void ResetMillCells()
+        {
+            for (int i = 0; i < millCells.Count; i++)
+                millCells[i].ResetIsVisited();
+        }
     }
 }

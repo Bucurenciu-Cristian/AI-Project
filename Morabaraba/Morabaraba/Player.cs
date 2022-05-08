@@ -84,7 +84,7 @@ namespace Morabaraba
         }
         public List<BoardCell> GetMyHandCells()
         {
-            return this.myHandCells;
+            return myHandCells;
         }
         public void SetMyHandCells(List<BoardCell> myHandCells)
         {

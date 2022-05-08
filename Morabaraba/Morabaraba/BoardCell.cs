@@ -18,16 +18,26 @@ namespace Morabaraba
             BlackOccupied,
             WhiteOccupied
         }
-        private CellState state;
+        public enum CellPosition
+        {
+            Corner,
+            Middle,
+            Both
+        }
+        private CellPosition cellPosition;
+        private CellState cellState;
         private bool partOfThree;// daca se afla in una din morile playerilor
-
+        private bool isVisited;
         public BoardCell(){}
 
-        public BoardCell(int id, int[] neighbors)
+        public BoardCell(int id, int[] neighbors, CellPosition position)
         {
             this.id = id;
             this.neighbors = neighbors;
-            state = CellState.Empty;
+            cellPosition = position;
+            cellState = CellState.Empty;
+            partOfThree = false;
+            isVisited = false;
         }
 
         public void SetX_Position(int xPosition)
@@ -64,11 +74,11 @@ namespace Morabaraba
         }
         public CellState GetState()
         {
-            return this.state;
+            return this.cellState;
         }
         public void SetState(CellState state)
         {
-            this.state = state;
+            this.cellState = state;
         }
         public bool GetPartOfThree()
         {
@@ -77,6 +87,26 @@ namespace Morabaraba
         public void SetPartOfThree(bool isPart)
         {
             this.partOfThree = isPart;
+        }
+        public CellPosition GetCellPosition()
+        {
+            return cellPosition;
+        }
+        public void SetCellPosition(CellPosition position)
+        {
+            this.cellPosition = position;
+        }
+        public bool GetIsVisited()
+        {
+            return isVisited;
+        }
+        public void SetIsVisited()
+        {
+            this.isVisited = true;
+        }
+        public void ResetIsVisited()
+        {
+            this.isVisited = false;
         }
     }
 }
