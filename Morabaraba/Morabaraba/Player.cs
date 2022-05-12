@@ -33,7 +33,7 @@ namespace Morabaraba
         {
             this.myTurn = myTurn;
             this.myColor = myColor;
-            myState = PlayerState.Placing;
+            this.myState = PlayerState.Placing;
             this.myName = name;
             this.myHandCells = new List<BoardCell>();
             this.myBoardCells = new List<BoardCell>();
@@ -112,7 +112,7 @@ namespace Morabaraba
         }
         public void SetMyState(PlayerState myState)
         {
-            myState = this.myState;
+            this.myState = myState;
         }
         public string GetMyName()
         {

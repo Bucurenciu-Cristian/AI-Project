@@ -86,12 +86,14 @@ namespace Morabaraba
                 Debug.WriteLine("Aria: " + Area);
                 if (Area == 0.0)
                 {
-
                     for (int j = 0; j < activePlayer.GetMyMills().Length; j++)
                     {
                         if (activePlayer.GetMyMills()[j].GetIsNew() == false)
                         {
                             activePlayer.GetMyMills()[j] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
+                            Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(0).GetId()).SetPartOfThree(true);
+                            Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(1).GetId()).SetPartOfThree(true);
+                            Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(2).GetId()).SetPartOfThree(true);
                             Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
                             break;
                         }
