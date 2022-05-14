@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,6 +65,21 @@ namespace Morabaraba
             else
             {
                 return Properties.Resources.whitePiece;
+            }
+        }
+        public void PrintPlayerMill(Player activePlayer)
+        {
+            for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
+            {
+                if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
+                {
+                    Debug.WriteLine("Moara" + i);
+                    for (int j = 0; j < activePlayer.GetMyMills()[i].GetMillCells().Count(); j++)
+                    {
+                        Debug.Write(activePlayer.GetMyMills()[i].GetMillCells()[j].GetId() + " ");
+                    }
+                    Debug.WriteLine("");
+                }
             }
         }
         public bool GetMyTurn()

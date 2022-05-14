@@ -92,8 +92,11 @@ namespace Morabaraba
                         {
                             activePlayer.GetMyMills()[j] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
                             Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(0).GetId()).SetPartOfThree(true);
+                            Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(0).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
                             Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(1).GetId()).SetPartOfThree(true);
+                            Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(1).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
                             Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(2).GetId()).SetPartOfThree(true);
+                            Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(2).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
                             Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
                             break;
                         }
@@ -152,6 +155,12 @@ namespace Morabaraba
                                     {
                                         activePlayer.GetMyMills()[k] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
                                         Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
+                                        Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(0).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
+                                        Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(1).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
+                                        Game.GetSocket().Send(Encoding.ASCII.GetBytes(mill.GetMillCells().ElementAt(2).GetId().ToString() + " PartOfThree" + " true" + " \r\n"));
+                                        Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(0).GetId()).SetPartOfThree(true);
+                                        Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(1).GetId()).SetPartOfThree(true);
+                                        Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(2).GetId()).SetPartOfThree(true);
                                         break;
                                     }
                                 }
@@ -234,6 +243,18 @@ namespace Morabaraba
             }
             return false;
         }
+        public static int NewPlayerMill(Player activePlayer)
+        {
+            int ct = 0;
+            for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
+            {
+                if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
+                {
+                    ct++;
+                }
+            }
+            return ct;
+        }
         public static void SetMyTurn1(int myTurn)
         {
             myTurn1 = myTurn;
@@ -265,6 +286,10 @@ namespace Morabaraba
         public static void SetPlayer2(Player player)
         {
             player2 = player;
+        }
+        public static Mill GetMill()
+        {
+            return mill;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -50,6 +51,8 @@ namespace Morabaraba
 
         private void buttonExit_Click(object sender, EventArgs e)
         {
+            //Game.GetSocket().Shutdown(SocketShutdown.Both);
+            //Game.GetSocket().Close();   
             this.Close();
         }
     }
