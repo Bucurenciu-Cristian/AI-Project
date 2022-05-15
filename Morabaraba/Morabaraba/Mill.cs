@@ -45,7 +45,7 @@ namespace Morabaraba
         public void ResetMillCells()
         {
             for (int i = 0; i < millCells.Count; i++)
-                millCells[i].ResetIsVisited();
+                millCells[i].SetPartOfThree(false);
         }
     }
 }

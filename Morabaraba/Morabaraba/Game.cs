@@ -16,7 +16,7 @@ namespace Morabaraba
     public partial class Game : Form
     {
         private static Board board;
-        private PictureBox pictureBox;
+        private static PictureBox pictureBox;
         private GameState gameState;
         private static Socket socket;//serverSocket vs clientSocket
         private int playerIndex;
@@ -183,7 +183,7 @@ namespace Morabaraba
                     bool color = GamePlay.GetActivePlayer().GetMyColor();
                     board.GetCells().ElementAt(panelIndex).SetState(color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                     board.UpdateCells();
-                    if (GamePlay.GetActivePlayer().GetMyBoardCells().Contains(cell))
+                    if (!GamePlay.GetActivePlayer().GetMyBoardCells().Contains(cell))
                     {
                         GamePlay.GetActivePlayer().GetMyBoardCells().Add(board.GetCells().ElementAt(panelIndex));
                     }
@@ -199,7 +199,7 @@ namespace Morabaraba
             {
                 GamePlay.PlayerTurn(GamePlay.GetActivePlayer(), GamePlay.GetInactivePlayer(), GamePlay.GetActivePlayer().GetMyHandCells().Count);
             }
-            if (mess.Length > 2)
+            if (mess.Length > 3)
             {
                 data = (data.Substring(data.IndexOf("true")+4)).Trim();
                 //Console.WriteLine(data);
@@ -292,9 +292,14 @@ namespace Morabaraba
                 {
                     Debug.WriteLine(GamePlay.GetInactivePlayer().GetMyBoardCells()[i].GetPartOfThree()+ " "+ GamePlay.GetInactivePlayer().GetMyBoardCells()[i].GetId());
                 }
-                if ((board.GetCells().ElementAt(int.Parse(panel.Name)).GetState() == (GamePlay.GetInactivePlayer().GetMyColor() == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied)) && !(board.GetCells().ElementAt(int.Parse(panel.Name)).GetPartOfThree()))
+                if ((board.GetCells().ElementAt(int.Parse(panel.Name)).GetState() == (GamePlay.GetInactivePlayer().GetMyColor() == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied)) && (!(board.GetCells().ElementAt(int.Parse(panel.Name)).GetPartOfThree()) || GamePlay.AllPlayerCellsInMills()))
                 {
                     BoardCell cellRemove = board.GetCells().ElementAt(int.Parse(panel.Name));
+                    if (GamePlay.AllPlayerCellsInMills())
+                    {
+                        Debug.WriteLine("intra Marcus?");
+                        GamePlay.DestroyMill(cellRemove);
+                    }
                     GamePlay.GetInactivePlayer().GetMyBoardCells().Remove(cellRemove);
                     board.GetCells().ElementAt(int.Parse(panel.Name)).SetState(BoardCell.CellState.Empty);
                     board.UpdateCells();
@@ -361,7 +366,6 @@ namespace Morabaraba
         {
             Game_MouseClick(sender, e);
         }
-
         private void Game_MouseClick(object sender, MouseEventArgs e)
         {
             if(this.gameState == GameState.AgainstPlayer)
@@ -372,6 +376,9 @@ namespace Morabaraba
                 Player.PlayerState playerState = activePlayer.GetMyState();
                 if(currentPlayerName.CompareTo(inactivePlayer.GetMyName()) == 0)
                 {
+                    FreezeBoard();
+                    EnabledPanelContents(false);
+                    Application.DoEvents();
                     messageReceiver.RunWorkerAsync();
                     while (data.CompareTo("") == 0)
                     {
@@ -379,6 +386,12 @@ namespace Morabaraba
                     }
                     DecodeMessage();
                     data = "";
+                    return;
+                }
+                else
+                {
+                    UnfreezeBoard();
+                    EnabledPanelContents(true);
                 }
                 switch (playerState)
                 {
@@ -430,6 +443,16 @@ namespace Morabaraba
             int bytesRec = socket.Receive(bytes);
             Game.data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
         }
+        public static void FreezeBoard()
+        {
+            pictureBox.Enabled = false;
+
+        }
+        public static void UnfreezeBoard()
+        {
+            pictureBox.Enabled = false;
+
+        }
         public static Socket GetSocket()
         {
             return socket;
@@ -437,6 +460,16 @@ namespace Morabaraba
         public static Board GetBoard()
         {
             return board;
+        }
+        private void EnabledPanelContents( bool enabled )
+        {
+            for(int i=0;i<board.GetPanels().Length;i++)
+            {
+                foreach (Control ctrl in board.GetPanels()[i].Controls)
+                {
+                    ctrl.Enabled = enabled;
+                }
+            }
         }
     }
 }
