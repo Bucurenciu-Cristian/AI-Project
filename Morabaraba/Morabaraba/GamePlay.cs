@@ -58,7 +58,10 @@ namespace Morabaraba
         }
         public static void PlayerTurn(Player play1, Player play2, int indice)
         {
-            play1.GetMyHandCells().RemoveAt(indice-1);
+            if(indice>0)
+            {
+                play1.GetMyHandCells().RemoveAt(indice - 1);
+            }
             play1.SetMyTurn(false);
             play2.SetMyTurn(true);
         }
@@ -164,32 +167,35 @@ namespace Morabaraba
         }
         public static void CheckForMill(Player activePlayer, BoardCell cell)
         {
-            BoardCell.CellPosition position = cell.GetCellPosition();
-            switch (position)
+            if (activePlayer.GetMyBoardCells().Count() > 2)
             {
-                case BoardCell.CellPosition.Corner:
+                BoardCell.CellPosition position = cell.GetCellPosition();
+                switch (position)
                 {
-                    Debug.WriteLine("----------------------------");
-                    CheckForMillCorner(activePlayer, cell);
-                    mill.GetMillCells()[0].ResetIsVisited();
-                    mill.GetMillCells().RemoveAt(0);
-                    break;
-                }
-                case BoardCell.CellPosition.Middle:
-                {
-                    Debug.WriteLine("******************************");
-                    CheckForMillMiddle(activePlayer, cell);
-                    break ;
-                }
-                case BoardCell.CellPosition.Both:
-                {
-                    Debug.WriteLine("*******************************");
-                    CheckForMillMiddle(activePlayer, cell);
-                    Debug.WriteLine("----------------------------");
-                    CheckForMillCorner(activePlayer, cell);
-                    mill.GetMillCells()[0].ResetIsVisited();
-                    mill.GetMillCells().RemoveAt(0);
-                    break;
+                    case BoardCell.CellPosition.Corner:
+                    {
+                        Debug.WriteLine("----------------------------");
+                        CheckForMillCorner(activePlayer, cell);
+                        mill.GetMillCells()[0].ResetIsVisited();
+                        mill.GetMillCells().RemoveAt(0);
+                        break;
+                    }
+                    case BoardCell.CellPosition.Middle:
+                    {
+                        Debug.WriteLine("******************************");
+                        CheckForMillMiddle(activePlayer, cell);
+                        break;
+                    }
+                    case BoardCell.CellPosition.Both:
+                    {
+                        Debug.WriteLine("*******************************");
+                        CheckForMillMiddle(activePlayer, cell);
+                        Debug.WriteLine("----------------------------");
+                        CheckForMillCorner(activePlayer, cell);
+                        mill.GetMillCells()[0].ResetIsVisited();
+                        mill.GetMillCells().RemoveAt(0);
+                        break;
+                    }
                 }
             }
         }
@@ -320,6 +326,10 @@ namespace Morabaraba
         public static Mill GetMill()
         {
             return mill;
+        }
+        public static void SetMill(Mill newMill)
+        {
+            mill = newMill;
         }
     }
 }

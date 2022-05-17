@@ -9,24 +9,17 @@ namespace Morabaraba
 {
     public class Player
     {
-        //culoare
-        //nr piese
-        //state
-        //randul meu, dupa un timp sa schimb automat randul si sa mut orice?
-        //maxim 4 mori
-        //avem cazul player vs player sau player vs ia
         public enum PlayerState
         {
             Placing,
             Moving,
-            Taking,//pentru moara sa ia piesa adversarului
+            Taking,
             Flying
         }
         private bool myTurn;
         private bool myColor;//0 alb, 1 negru care are mai mare valoarea la un random ia alb
         private List<BoardCell> myHandCells;
-        private List<BoardCell> myBoardCells;// variabila de tinut minte o celula pe care am apasat-o pentru miscare
-        // cell apasat ( selectata ) = new cell, daca e apasata aceeasi celula de 2 ori sa o deselecteze 
+        private List<BoardCell> myBoardCells;
         private PlayerState myState;
         private Mill[] myMills;
         private string myName = "";
@@ -51,7 +44,7 @@ namespace Morabaraba
         }
         public void InitializeHandCells()
         {
-            for(int i=0;i<12;i++)//12 vaci are fiecare player
+            for(int i=0;i<3;i++)//12 vaci are fiecare player
             {
                 myHandCells.Add(new BoardCell());
             }

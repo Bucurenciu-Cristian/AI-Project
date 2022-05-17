@@ -107,7 +107,10 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Game";
             this.Text = "Game";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Game_DragDrop);
+            this.DragOver += new System.Windows.Forms.DragEventHandler(this.Game_DragOver);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Game_MouseClick);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Game_MouseDown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

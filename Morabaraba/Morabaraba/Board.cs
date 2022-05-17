@@ -133,7 +133,8 @@ namespace Morabaraba
                     Width = 60,
                     Height = 60,
                     BackColor = Color.Transparent,
-                    Name = cells.ElementAt(i).GetId()+""
+                    Name = cells.ElementAt(i).GetId()+"",
+                    AllowDrop = true
                 };
             }
         }
