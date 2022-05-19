@@ -11,7 +11,7 @@ namespace Morabaraba
     internal static class Program
     {
         private const int MaxInstanceCount = 2;
-        private static readonly Semaphore Semaphore = new Semaphore(MaxInstanceCount, MaxInstanceCount, "CanRunTwice");
+        public static Semaphore Semaphore = new Semaphore(MaxInstanceCount, MaxInstanceCount, "CanRunTwice");
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -35,13 +35,13 @@ namespace Morabaraba
                         //ClientTCP.StartClient();
                         Game game2 = new Game(Game.GameState.AgainstPlayer, 2);
                         game2.InitalizeGame();
-                        MessageBox.Show("jocul poate incepe!");
+                        MessageBox.Show("Jocul poate incepe!");
                         Application.Run(game2);               
                     }
                 }
                 finally
                 {
-                    Semaphore.Release();
+                   // Semaphore.Release();
                 }
             }
             else

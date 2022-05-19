@@ -51,9 +51,7 @@ namespace Morabaraba
 
         private void buttonExit_Click(object sender, EventArgs e)
         {
-            //Game.GetSocket().Shutdown(SocketShutdown.Both);
-            //Game.GetSocket().Close();   
-            this.Close();
+            System.Windows.Forms.Application.Exit();
         }
     }
 }
