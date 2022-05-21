@@ -44,7 +44,7 @@ namespace Morabaraba
         }
         public void InitializeHandCells()
         {
-            for(int i=0;i<5;i++)//12 vaci are fiecare player
+            for(int i=0;i<4;i++)//12 vaci are fiecare player
             {
                 myHandCells.Add(new BoardCell());
             }

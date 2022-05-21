@@ -56,14 +56,16 @@ namespace Morabaraba
             else
                 return player2;
         }
-        public static void PlayerTurn(Player play1, Player play2, int indice)
+        public static void SwitchTurn()
         {
-            if(indice>0)
+            Player activePlayer = GetActivePlayer();
+            Player inactivePlayer = GetInactivePlayer();
+            if(GetActivePlayer().GetMyHandCells().Count > 0)
             {
-                play1.GetMyHandCells().RemoveAt(indice - 1);
+                GetActivePlayer().GetMyHandCells().RemoveAt(GetActivePlayer().GetMyHandCells().Count - 1);
             }
-            play1.SetMyTurn(false);
-            play2.SetMyTurn(true);
+            activePlayer.SetMyTurn(false);
+            inactivePlayer.SetMyTurn(true);
         }
         public static void CheckForMillCorner(Player activePlayer, BoardCell cell)
         {
@@ -238,7 +240,7 @@ namespace Morabaraba
             }
             return false;
         }
-        public static int NewPlayerMill(Player activePlayer)
+        public static int NewPlayerMillCount(Player activePlayer)
         {
             int ct = 0;
             for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
@@ -256,21 +258,24 @@ namespace Morabaraba
             int ctp = 0;
             for(int i = 0; i < inactivePlayer.GetMyBoardCells().Count;i++)
             {
+                Debug.Write(inactivePlayer.GetMyBoardCells()[i].GetId() + " ");
                 if(inactivePlayer.GetMyBoardCells()[i].GetPartOfThree())
                 {
                     ctp++;
                 }
             }
-            if(ctp == inactivePlayer.GetMyBoardCells().Count)
+            Debug.WriteLine(inactivePlayer.GetMyBoardCells().Count + "nr piese");
+            if (ctp == inactivePlayer.GetMyBoardCells().Count)
             {
-                Debug.WriteLine(ctp + " contor player inactiiiiiiiiiiiiiiiiv");
+                Debug.WriteLine(ctp +" "+ inactivePlayer.GetMyName() + " contor player inactiiiiiiiiiiiiiiiiv");
                 return true;
             }
 
             return false;
         }
-        public static void DestroyMill(BoardCell cell, Player inactivePlayer)
+        public static void DestroyMill(BoardCell cell)
         {
+            Player inactivePlayer = GetInactivePlayer();
             for(int i=0;i < inactivePlayer.GetMyMills().Length;i++)
             {
                 if (inactivePlayer.GetMyMills()[i].GetIsNew()==true)
@@ -293,6 +298,21 @@ namespace Morabaraba
                 }
                 Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(i).GetId()).SetPartOfThree(Convert.ToBoolean(partOfThree));
             }
+        }
+        public static bool CheckIfCanMove(Player player)
+        {
+            for(int i=0;i<player.GetMyBoardCells().Count;i++)
+            {
+                for(int j=0;j< player.GetMyBoardCells()[i].GetNeighbors().Count(); j++)
+                {
+                    BoardCell checkCell = Game.GetBoard().GetCells().ElementAt(player.GetMyBoardCells()[i].GetNeighbors()[j]);
+                    if (checkCell.GetState() == BoardCell.CellState.Empty )
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         public static void SetMyTurn1(int myTurn)
         {

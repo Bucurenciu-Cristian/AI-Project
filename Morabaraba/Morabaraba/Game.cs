@@ -24,6 +24,7 @@ namespace Morabaraba
         private static string data="";
         private static List<BoardCell> posibilities = new List<BoardCell>();
         private static BoardCell selectedCell;
+        private static int counter = 5;
 
         public enum GameState
         {
@@ -156,12 +157,12 @@ namespace Morabaraba
         {
             data = data.Trim();
             string[] mess = data.Split(' ');
-            Debug.WriteLine(mess[0] + " mess[0]");
+            //Debug.WriteLine(mess[0] + " mess[0]");
             int panelIndex = int.Parse(mess[0].Trim());
             string action = mess[1].Trim(); 
-            Debug.WriteLine(mess.Length + " Length");
-            Debug.WriteLine(action + " mess[1]");
-            Debug.WriteLine(mess[2].Trim() + " mess[2]");
+            //Debug.WriteLine(mess.Length + " Length");
+            //Debug.WriteLine(action + " mess[1]");
+            //Debug.WriteLine(mess[2].Trim() + " mess[2]");
             string switchTurn = "";
             if (action.EndsWith("2"))
             {
@@ -173,23 +174,49 @@ namespace Morabaraba
             {
                 case "PartOfThree":
                     bool partOfThree = Convert.ToBoolean(mess[2].Trim());
-                    GamePlay.GetActivePlayer().GetMyBoardCells().Add(cell);
-                    GamePlay.GetMill().GetMillCells().Add(cell);
-                    GamePlay.GetActivePlayer().GetMyBoardCells()[GamePlay.GetActivePlayer().GetMyBoardCells().Count-1].SetPartOfThree(partOfThree);
+                    int poz = GamePlay.GetActivePlayer().GetMyBoardCells().IndexOf(cell);
+                    int poz1 = GamePlay.GetInactivePlayer().GetMyBoardCells().IndexOf(cell);
+                    if (GamePlay.GetActivePlayer().GetMyBoardCells().Contains(cell))
+                    {
+                        GamePlay.GetActivePlayer().GetMyBoardCells()[poz].SetPartOfThree(partOfThree);
+                    }
+                    else
+                    {
+                        if (GamePlay.GetInactivePlayer().GetMyBoardCells().Contains(cell))
+                        {
+                            GamePlay.GetInactivePlayer().GetMyBoardCells()[poz1].SetPartOfThree(partOfThree);
+                        }
+                        else
+                        {
+                            GamePlay.GetActivePlayer().GetMyBoardCells().Add(cell);
+                            GamePlay.GetActivePlayer().GetMyBoardCells()[GamePlay.GetActivePlayer().GetMyBoardCells().Count - 1].SetPartOfThree(partOfThree);
+                        }
+                    }
+                    if (partOfThree == true)
+                    {
+                        GamePlay.GetMill().GetMillCells().Add(cell);
+                    }
                     if(GamePlay.GetMill().GetMillCells().Count>2)
                     {
                         for(int k=0;k<GamePlay.GetActivePlayer().GetMyMills().Length; k++)
                         {
                             if(GamePlay.GetActivePlayer().GetMyMills()[k].GetIsNew()==false)
                             {
-                                Debug.WriteLine("a facut moara din ");
+                                Debug.WriteLine("A facut moara din " + GamePlay.GetMill().GetMillCells().ElementAt(0).GetId() + " " + GamePlay.GetMill().GetMillCells().ElementAt(1).GetId() + " " + GamePlay.GetMill().GetMillCells().ElementAt(2).GetId());
                                 GamePlay.GetActivePlayer().GetMyMills()[k] = new Mill(GamePlay.GetMill().GetMillCells().ElementAt(0), GamePlay.GetMill().GetMillCells().ElementAt(1), GamePlay.GetMill().GetMillCells().ElementAt(2));
                                 break;
                             }
                         }
                         GamePlay.GetMill().GetMillCells().Clear(); 
                     }
-                    switchTurn = "2";
+                    if (mess.Length > 3)
+                    {
+                        switchTurn = "2";
+                    }
+                    else
+                    {
+                        switchTurn = "";
+                    }
                     break;
                 case "Placing":
                     bool color = GamePlay.GetActivePlayer().GetMyColor();
@@ -205,6 +232,10 @@ namespace Morabaraba
                     GamePlay.GetInactivePlayer().GetMyBoardCells().Remove(cellRemove);
                     board.GetCells().ElementAt(panelIndex).SetState(BoardCell.CellState.Empty);
                     board.UpdateCells();
+                    if (mess.Length != 3)
+                    {
+                        switchTurn = "2";
+                    }
                     break;
                 case "Moving":
                     int target = int.Parse(mess[2].Trim());
@@ -221,20 +252,42 @@ namespace Morabaraba
                     {
                         switchTurn = "2";
                     }
-
                     if ( mess.Length != 3)//am facut o moara
                     {
                         switchTurn = "2";
                     }
                     break;
+                case "FlyingState":
+                    GamePlay.GetInactivePlayer().SetMyState(Player.PlayerState.Flying);
+                    if(mess.Length != 3)
+                    {
+                        switchTurn= "2";
+                    }
+                    break;
+                case "Victory":
+                    MessageBox.Show( mess[2] + " a castigat meciul!");
+                    System.Windows.Forms.Application.Exit();
+                    break;
+                case "Draw":
+                    MessageBox.Show("Meciul s-a terminat la egalitate!");
+                    System.Windows.Forms.Application.Exit();
+                    break;
                 case "Surrender":
                     MessageBox.Show( "player" + mess[0]+" s-a predat, " + this.labelName1.Text + " e castigatorul");
                     System.Windows.Forms.Application.Exit();
                     break;
+                case "Counter":
+                    counter = panelIndex;
+                    Debug.WriteLine(counter);
+                    if (mess.Length != 3)//am facut o moara
+                    {
+                        switchTurn = "2";
+                    }
+                    break;
             }
             if (switchTurn.CompareTo("") == 0) 
             {
-                GamePlay.PlayerTurn(GamePlay.GetActivePlayer(), GamePlay.GetInactivePlayer(), GamePlay.GetActivePlayer().GetMyHandCells().Count);
+                GamePlay.SwitchTurn();
             }
             if (mess.Length > 3)
             {
@@ -273,11 +326,16 @@ namespace Morabaraba
                                 }
                                 if (activePlayer.GetMyState() != Player.PlayerState.Taking)
                                 {
-                                    GamePlay.PlayerTurn(activePlayer, inactivePlayer, activePlayer.GetMyHandCells().Count);
+                                    GamePlay.SwitchTurn();
                                     SetTextFromTextBox("Mai ai " + activePlayer.GetMyHandCells().Count + " piese de pus" + "\r\nAcum e randul la " + inactivePlayerName + "\r\n");
                                     if(gameState == GameState.AgainstPlayer)
                                     {
                                         socket.Send(Encoding.ASCII.GetBytes((Int32.Parse(panel.Name)).ToString() + " Placing " +"0 \r\n"));
+                                    }
+                                    if (activePlayer.GetMyHandCells().Count == 0)
+                                    {
+                                        MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare");
+                                        activePlayer.SetMyState(Player.PlayerState.Moving);
                                     }
                                 }
                                 else
@@ -286,11 +344,6 @@ namespace Morabaraba
                                     {
                                         socket.Send(Encoding.ASCII.GetBytes((Int32.Parse(panel.Name)).ToString() + " Placing2 " +"0 \r\n"));
                                     }
-                                }
-                                if (activePlayer.GetMyHandCells().Count == 0)
-                                {
-                                    MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare");
-                                    activePlayer.SetMyState(Player.PlayerState.Moving);
                                 }
                             }
                             else
@@ -315,24 +368,49 @@ namespace Morabaraba
         }
         public void TakeCow(object sender)
         {
-            String inactivePlayerName = GamePlay.GetInactivePlayer().GetMyName();
+            string inactivePlayerName = GamePlay.GetInactivePlayer().GetMyName();
             MessageBox.Show("Ia o piesa!");
             Player activePlayer = GamePlay.GetActivePlayer();
             var panel = sender as Panel;
             Mill mill1 = new Mill();
-            int ctMill = GamePlay.NewPlayerMill(GamePlay.GetActivePlayer());
+            int ctMill = GamePlay.NewPlayerMillCount(GamePlay.GetActivePlayer());
             if (null != panel)
             {
                 if ((board.GetCells().ElementAt(int.Parse(panel.Name)).GetState() == (GamePlay.GetInactivePlayer().GetMyColor() == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied)) && (!(board.GetCells().ElementAt(int.Parse(panel.Name)).GetPartOfThree()) || GamePlay.AllPlayerCellsInMills()))
                 {
+                    Debug.WriteLine("mereti de aci-----------------------------------");
                     BoardCell cellRemove = board.GetCells().ElementAt(int.Parse(panel.Name));
                     if (GamePlay.AllPlayerCellsInMills())
                     {
-                        GamePlay.DestroyMill(cellRemove, GamePlay.GetInactivePlayer());
+                        GamePlay.DestroyMill(cellRemove);
                     }
                     GamePlay.GetInactivePlayer().GetMyBoardCells().Remove(cellRemove);
                     board.GetCells().ElementAt(int.Parse(panel.Name)).SetState(BoardCell.CellState.Empty);
                     board.UpdateCells();
+                    Debug.WriteLine(GamePlay.GetInactivePlayer().GetMyBoardCells().Count);
+                    Debug.WriteLine(GamePlay.GetInactivePlayer().GetMyHandCells().Count);
+                    if (GamePlay.GetInactivePlayer().GetMyBoardCells().Count == 3 && GamePlay.GetInactivePlayer().GetMyHandCells().Count == 0)
+                    {
+                        GamePlay.GetInactivePlayer().SetMyState(Player.PlayerState.Flying);
+                        if (gameState == GameState.AgainstPlayer)
+                        {
+                            socket.Send(Encoding.ASCII.GetBytes(0 + " FlyingState " + "0 \r\n"));
+                        }
+                    }
+                    if (GamePlay.GetInactivePlayer().GetMyBoardCells().Count < 3 && GamePlay.GetInactivePlayer().GetMyHandCells().Count == 0)
+                    {
+                        MessageBox.Show("Joc terminat " + activePlayer.GetMyName() + " e castigator");
+                        if (gameState == GameState.AgainstPlayer)
+                        {
+                            socket.Send(Encoding.ASCII.GetBytes(0 + " Victory " + activePlayer.GetMyName() + " \r\n"));
+                            socket.Shutdown(SocketShutdown.Both);
+                            socket.Close();
+                        }
+                        messageReceiver.WorkerSupportsCancellation = true;
+                        messageReceiver.CancelAsync();
+                        System.Windows.Forms.Application.Exit();
+                        return;
+                    }
                     if (ctMill != 1)
                     {
                         activePlayer.SetMyState(Player.PlayerState.Taking);
@@ -343,33 +421,46 @@ namespace Morabaraba
                     }
                     else
                     {
-                        MessageBox.Show("E randul adversarului");
-                        if (activePlayer.GetMyHandCells().Count == 0)
+                        //moving
+                        if (activePlayer.GetMyHandCells().Count == 0 && activePlayer.GetMyBoardCells().Count > 3)
                         {
                             activePlayer.SetMyState(Player.PlayerState.Moving);
                         }
-                        else if (activePlayer.GetMyBoardCells().Count == 3 && activePlayer.GetMyHandCells().Count == 0)
+                        //flying
+                        if (activePlayer.GetMyBoardCells().Count == 3 && activePlayer.GetMyHandCells().Count == 0)
                         {
                             activePlayer.SetMyState(Player.PlayerState.Flying);
                         }
-                        else
+                        //placing
+                        if (activePlayer.GetMyHandCells().Count > 0)
                         {
                             activePlayer.SetMyState(Player.PlayerState.Placing);
-                        }
-                        GamePlay.PlayerTurn(activePlayer, GamePlay.GetInactivePlayer(), activePlayer.GetMyHandCells().Count);
-                        if(activePlayer.GetMyState() == Player.PlayerState.Placing)
-                        {
+                            GamePlay.SwitchTurn();
                             SetTextFromTextBox("Mai ai " + activePlayer.GetMyHandCells().Count + " piese de pus" + "\r\nAcum e randul la " + inactivePlayerName + "\r\n");
                             if (activePlayer.GetMyHandCells().Count == 0)
                             {
-                                MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare");
-                                activePlayer.SetMyState(Player.PlayerState.Moving);
+                                if (activePlayer.GetMyBoardCells().Count == 3 && activePlayer.GetMyHandCells().Count == 0)
+                                {
+                                    //MessageBox.Show("Mai ai 3 piese. Treci la etapa de sarituri!");
+                                    activePlayer.SetMyState(Player.PlayerState.Flying);
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Ati terminat toate piesele. Treci la etapa de mutare!");
+                                    activePlayer.SetMyState(Player.PlayerState.Moving);
+                                }
                             }
                         }
+                        else
+                        {
+                            GamePlay.SwitchTurn();
+                        }
+                        MessageBox.Show("E randul adversarului");
                         if (gameState == GameState.AgainstPlayer)
                         {
                             socket.Send(Encoding.ASCII.GetBytes((int.Parse(panel.Name)).ToString() + " Taking " +"0 \r\n"));
                         }
+                        Debug.WriteLine(GamePlay.GetActivePlayer().GetMyState() + "uglyyyyyyyyyyyyy");
                     }
                     for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
                     {
@@ -380,7 +471,7 @@ namespace Morabaraba
                             break;
                         }
                     }
-                    ctMill = GamePlay.NewPlayerMill(activePlayer);
+                    ctMill = GamePlay.NewPlayerMillCount(activePlayer);
                 }
                 else
                 {
@@ -391,19 +482,13 @@ namespace Morabaraba
             {
                 MessageBox.Show("Alegeti o piesa valida");
             }
-            if(GamePlay.GetInactivePlayer().GetMyBoardCells().Count < 3 && GamePlay.GetInactivePlayer().GetMyHandCells().Count==0)// & state flying
-            {
-                Debug.WriteLine("Joc terminat" + activePlayer.GetMyName() + " e castigator");
-            }
         }
         public static void VerifyCowInMill(object sender)
         {
-            Debug.WriteLine("intra1");
             Player activePlayer = GamePlay.GetActivePlayer();
             Panel panel = sender as Panel;
             if (panel != null)
             {
-                Debug.WriteLine("intra2");
                 GamePlay.CheckForMill(activePlayer, board.GetCells().ElementAt(Int32.Parse(panel.Name)));
                 for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
                 {
@@ -413,25 +498,22 @@ namespace Morabaraba
                         activePlayer.SetMyState(Player.PlayerState.Taking);
                     }
                 }
-                for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
+            }
+        }
+        public static void VerifyIfDestroyedMill(int index, object sender)
+        {
+            Player activePlayer = GamePlay.GetActivePlayer();
+            for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
+            {
+                if (activePlayer.GetMyMills()[i].GetMillCells() != null)
                 {
-                    if (activePlayer.GetMyMills()[i].GetIsNew() == true)
+                    if (activePlayer.GetMyMills()[i].GetMillCells().Contains(board.GetCells().ElementAt(index)))
                     {
-                        Debug.WriteLine("intra3");
-                        if(GamePlay.CalculateTriangleArea() != 0.0)
-                        {
-                            Debug.WriteLine("intra4");
-                            GamePlay.SetMill(activePlayer.GetMyMills()[i]);
-                            MessageBox.Show("Ati stricat o moara!");
-                            GamePlay.SendMillMess(GamePlay.GetMill(), "false");
-                        }
+                        GamePlay.SendMillMess(activePlayer.GetMyMills()[i], "false");
+                        activePlayer.GetMyMills()[i] = new Mill();
                     }
                 }
             }
-        }
-        public void PlacingAgainstPC(object sender)
-        {
-
         }
         private void PictureBox_MouseClick(object sender, MouseEventArgs e)
         {
@@ -439,15 +521,15 @@ namespace Morabaraba
         }
         private void Game_MouseClick(object sender, MouseEventArgs e)
         {
-            if(gameState == GameState.AgainstPlayer)
+            string currentPlayerName = labelName1.Text;
+            Player activePlayer = GamePlay.GetActivePlayer();
+            Player inactivePlayer = GamePlay.GetInactivePlayer();
+            Player.PlayerState playerState = activePlayer.GetMyState();
+            if(currentPlayerName.CompareTo(inactivePlayer.GetMyName()) == 0)
             {
-                string currentPlayerName = labelName1.Text;
-                Player activePlayer = GamePlay.GetActivePlayer();
-                Player inactivePlayer = GamePlay.GetInactivePlayer();
-                Player.PlayerState playerState = activePlayer.GetMyState();
-                if(currentPlayerName.CompareTo(inactivePlayer.GetMyName()) == 0)
+                EnabledPanelContents(false);
+                if (gameState == GameState.AgainstPlayer)
                 {
-                    EnabledPanelContents(false);
                     Application.DoEvents();
                     messageReceiver.RunWorkerAsync();
                     while (data.CompareTo("") == 0)
@@ -458,35 +540,27 @@ namespace Morabaraba
                     data = "";
                     return;
                 }
-                else
-                {
-                    EnabledPanelContents(true);
-                }
-                switch (playerState)
-                {
-                    case Player.PlayerState.Placing:
-                        PlaceCow(sender, currentPlayerName);
-                        break;
-                    case Player.PlayerState.Taking:
-                        TakeCow(sender);
-                        break;
-                }
             }
             else
             {
-                PlacingAgainstPC(sender);
+                EnabledPanelContents(true);
+            }
+            switch (playerState)
+            {
+                case Player.PlayerState.Placing:
+                    PlaceCow(sender, currentPlayerName);
+                    break;
+                case Player.PlayerState.Taking:
+                    TakeCow(sender);
+                    break;
             }
         }
         private void buttonSurrender_Click(object sender, EventArgs e)
         {
-            //socket Surrender send messsage box cine s-a predat si inchid
             if(gameState == GameState.AgainstPlayer)
-            {
+            {     
                 char last = this.labelName1.Text[this.labelName1.Text.Length - 1];
-                if(gameState == GameState.AgainstPlayer)
-                {
-                    socket.Send(Encoding.ASCII.GetBytes(int.Parse(last.ToString()) + " Surrender " +"0 \r\n"));
-                }
+                socket.Send(Encoding.ASCII.GetBytes(last.ToString() + " Surrender " +"0 \r\n"));
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
             }
@@ -554,22 +628,46 @@ namespace Morabaraba
                         {
                             int index = player.GetMyBoardCells().FindIndex(x => x.GetId() == board.GetCells().ElementAt(int.Parse(panel.Name)).GetId());
                             player.GetMyBoardCells()[index] = board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId());
-                            Debug.WriteLine(player.GetMyBoardCells()[index].GetId());
-                            if(gameState == GameState.AgainstPlayer)
-                            {
-                                socket.Send(Encoding.ASCII.GetBytes(selectedCell.GetId() + " Moving " + board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId() +" \r\n"));
-                            }
+                            //Debug.WriteLine(player.GetMyBoardCells()[index].GetId());
                             Panel panelToVerify = board.GetPanels()[board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId()];
+                            Player.PlayerState playerState = GamePlay.GetActivePlayer().GetMyState();
+                            Player.PlayerState enemyState = GamePlay.GetInactivePlayer().GetMyState();
+                            if (playerState == enemyState)
+                            {
+                                counter = counter-1;
+                                socket.Send(Encoding.ASCII.GetBytes(counter + " Counter " + "0 \r\n"));
+                            }
+                            Debug.WriteLine(counter + "counter");
+                            if (counter == 0)
+                            {
+                                MessageBox.Show("Meciul s-a terminat la egalitate!");
+                                if (gameState == GameState.AgainstPlayer)
+                                {
+                                    socket.Send(Encoding.ASCII.GetBytes(0 + " Draw " + "0 \r\n"));
+                                    socket.Shutdown(SocketShutdown.Both);
+                                    socket.Close();
+                                }
+                                messageReceiver.WorkerSupportsCancellation = true;
+                                messageReceiver.CancelAsync();
+                                System.Windows.Forms.Application.Exit();
+                                return;
+                            }
+                            Debug.WriteLine(" vacarul_________________________________");
                             if (selectedCell.GetId() == board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId())
                             {     
                                 MessageBox.Show("Tot tu esti.Fa o mutare!");
                             }
                             else
-                            {
+                            {   
+                                VerifyIfDestroyedMill(selectedCell.GetId(), panelToVerify);
+                                if (gameState == GameState.AgainstPlayer)
+                                {
+                                    socket.Send(Encoding.ASCII.GetBytes(selectedCell.GetId() + " Moving " + board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId() + " \r\n"));
+                                }
                                 VerifyCowInMill(panelToVerify);
                                 if (player.GetMyState() != Player.PlayerState.Taking)
                                 {
-                                    GamePlay.PlayerTurn(GamePlay.GetActivePlayer(), GamePlay.GetInactivePlayer(), GamePlay.GetActivePlayer().GetMyHandCells().Count);
+                                    GamePlay.SwitchTurn();
                                 }
                             }
                         }
@@ -581,7 +679,12 @@ namespace Morabaraba
         {
             Player activePlayer = GamePlay.GetActivePlayer();
             string currentPlayerName = labelName1.Text;
+            //if (GamePlay.GetActivePlayer().GetMyBoardCells().Count == 3 && GamePlay.GetActivePlayer().GetMyHandCells().Count == 0)
+            //{
+               // GamePlay.GetActivePlayer().SetMyState(Player.PlayerState.Flying);
+            //}
             Player.PlayerState playerState = activePlayer.GetMyState();
+            //Debug.WriteLine(activePlayer.GetMyState() + " state " + GamePlay.GetInactivePlayer().GetMyName() + " " + GamePlay.GetInactivePlayer().GetMyBoardCells().Count + " " + GamePlay.GetInactivePlayer().GetMyHandCells().Count);
             if (activePlayer.GetMyName().Equals(currentPlayerName))
             {
                 Point relativePoint = this.PointToClient(Cursor.Position);
@@ -589,48 +692,90 @@ namespace Morabaraba
                 bool color = GamePlay.GetInactivePlayer().GetMyColor();
                 if (selectedCell != null && (selectedCell.GetState() != (color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied)))
                 {
-                    for (int i = 0; i < board.GetCells().Count; i++)
+                    if (GamePlay.CheckIfCanMove(activePlayer))
                     {
-                        if (((board.GetCells()[i].GetX_Position() + 40) >= relativePoint.X) && ((board.GetCells()[i].GetX_Position() - 40) <= relativePoint.X) && ((board.GetCells()[i].GetY_Position() + 40) >= relativePoint.Y) && ((board.GetCells()[i].GetY_Position() - 40) <= relativePoint.Y) && (board.GetCells()[i].GetState() == BoardCell.CellState.Empty))
+                        for (int i = 0; i < board.GetCells().Count; i++)
                         {
-                            switch(playerState)
+                            if (((board.GetCells()[i].GetX_Position() + 40) >= relativePoint.X) && ((board.GetCells()[i].GetX_Position() - 40) <= relativePoint.X) && ((board.GetCells()[i].GetY_Position() + 40) >= relativePoint.Y) && ((board.GetCells()[i].GetY_Position() - 40) <= relativePoint.Y) && (board.GetCells()[i].GetState() == BoardCell.CellState.Empty))
                             {
-                                case Player.PlayerState.Moving:
-                                    if (selectedCell.GetNeighbors().Contains(board.GetCells()[i].GetId()) || selectedCell.GetId() == board.GetCells()[i].GetId())
-                                    {
+                                switch (playerState)
+                                {
+                                    case Player.PlayerState.Moving:
+                                        if (selectedCell.GetNeighbors().Contains(board.GetCells()[i].GetId()) || selectedCell.GetId() == board.GetCells()[i].GetId())
+                                        {
+                                            if (!posibilities.Contains(board.GetCells()[i]))
+                                            {
+                                                posibilities.Add(board.GetCells()[i]);
+                                            }
+                                        }
+                                        break;
+                                    case Player.PlayerState.Flying:
                                         if (!posibilities.Contains(board.GetCells()[i]))
                                         {
                                             posibilities.Add(board.GetCells()[i]);
                                         }
-                                    }
-                                    break;
-                                case Player.PlayerState.Flying:
-                                    if (!posibilities.Contains(board.GetCells()[i]))
-                                    {
-                                        posibilities.Add(board.GetCells()[i]);
-                                    }
-                                    break;
+                                        break;
+                                }
                             }
+                        }
+                        if (posibilities.Count > 0)
+                        {
+                            board.GetCells().ElementAt(selectedCell.GetId()).SetState(BoardCell.CellState.Empty);
+                            color = activePlayer.GetMyColor();
+                            board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).SetState(color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                            board.UpdateCells();
+                            List<BoardCell> aux = new List<BoardCell>();
+                            aux.Add(board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()));
+                            for (int i = 0; i < posibilities.Count - 1; i++)
+                            {
+                                if (!activePlayer.GetMyBoardCells().Contains(board.GetCells().ElementAt(posibilities[i].GetId())))
+                                {
+                                    board.GetCells().ElementAt(posibilities[i].GetId()).SetState(BoardCell.CellState.Empty);
+                                    board.UpdateCells();
+                                }
+                            }
+                            posibilities.Clear();
+                            posibilities = aux;
                         }
                     }
-                    if (posibilities.Count > 0)
+                    else
                     {
-                        board.GetCells().ElementAt(selectedCell.GetId()).SetState(BoardCell.CellState.Empty);
-                        color = activePlayer.GetMyColor();
-                        board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).SetState(color == true ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
-                        board.UpdateCells();
-                        List<BoardCell> aux = new List<BoardCell>();
-                        aux.Add(board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()));
-                        for (int i = 0; i < posibilities.Count - 1; i++)
+                        MessageBox.Show("Playerul nu se poate misca");
+                        if (GamePlay.CheckIfCanMove(GamePlay.GetInactivePlayer()))
                         {
-                            if (!activePlayer.GetMyBoardCells().Contains(board.GetCells().ElementAt(posibilities[i].GetId())))
+                            MessageBox.Show("Ambii jucatori nu pot juca ");
+                            if (gameState == GameState.AgainstPlayer)
                             {
-                                board.GetCells().ElementAt(posibilities[i].GetId()).SetState(BoardCell.CellState.Empty);
-                                board.UpdateCells();
+                                MessageBox.Show("Joc terminat.E egalitate!");
+                                if (gameState == GameState.AgainstPlayer)
+                                {
+                                    socket.Send(Encoding.ASCII.GetBytes(0 + " Draw " + "0 \r\n"));
+                                    socket.Shutdown(SocketShutdown.Both);
+                                    socket.Close();
+                                }
+                                messageReceiver.WorkerSupportsCancellation = true;
+                                messageReceiver.CancelAsync();
+                                System.Windows.Forms.Application.Exit();
+                                return;
                             }
                         }
-                        posibilities.Clear();
-                        posibilities = aux;
+                        else
+                        {
+                            if (gameState == GameState.AgainstPlayer)
+                            {
+                                MessageBox.Show("Joc terminat " + GamePlay.GetInactivePlayer().GetMyName() + " e castigator!");
+                                if (gameState == GameState.AgainstPlayer)
+                                {
+                                    socket.Send(Encoding.ASCII.GetBytes(0 + " Victory " + GamePlay.GetInactivePlayer().GetMyName() + " \r\n"));
+                                    socket.Shutdown(SocketShutdown.Both);
+                                    socket.Close();
+                                }
+                                messageReceiver.WorkerSupportsCancellation = true;
+                                messageReceiver.CancelAsync();
+                                System.Windows.Forms.Application.Exit();
+                                return;
+                            }
+                        }
                     }
                 }
             }       
