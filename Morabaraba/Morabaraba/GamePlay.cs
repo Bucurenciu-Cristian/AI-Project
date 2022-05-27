@@ -258,19 +258,15 @@ namespace Morabaraba
             int ctp = 0;
             for(int i = 0; i < inactivePlayer.GetMyBoardCells().Count;i++)
             {
-                Debug.Write(inactivePlayer.GetMyBoardCells()[i].GetId() + " ");
                 if(inactivePlayer.GetMyBoardCells()[i].GetPartOfThree())
                 {
                     ctp++;
                 }
             }
-            Debug.WriteLine(inactivePlayer.GetMyBoardCells().Count + "nr piese");
             if (ctp == inactivePlayer.GetMyBoardCells().Count)
             {
-                Debug.WriteLine(ctp +" "+ inactivePlayer.GetMyName() + " contor player inactiiiiiiiiiiiiiiiiv");
                 return true;
             }
-
             return false;
         }
         public static void DestroyMill(BoardCell cell)
