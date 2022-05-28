@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Morabaraba
 {
@@ -15,10 +16,12 @@ namespace Morabaraba
         private static Player player1;
         private static Player player2;
         private static Mill mill;
+        private static AI aiPlayer;
+
         public GamePlay()
         {
-
         }
+
         public static void WhoStartsTheGame()
         {
             Random random = new Random();
@@ -27,13 +30,15 @@ namespace Morabaraba
             if (myTurn1 == myTurn2)
                 WhoStartsTheGame();
         }
+
         public static void CreatePlayers()
         {
             mill = new Mill();
             mill.SetMillCells(new List<BoardCell>());
-            if(myTurn1 > myTurn2)
+
+            if (myTurn1 > myTurn2)
             {
-                player1 = new Player(true, true,"player1");//e alb si incepe
+                player1 = new Player(true, true, "player1");//e alb si incepe
                 player2 = new Player(false, false, "player2");//e negru si asteapta randul
             }
             else
@@ -41,7 +46,12 @@ namespace Morabaraba
                 player1 = new Player(false, false, "player1");
                 player2 = new Player(true, true, "player2");
             }
+            if(Game.GetState() == Game.GameState.AgainstPC)
+            {
+                aiPlayer = new AI();
+            }
         }
+
         public static Player GetActivePlayer()
         {
             if (player1.GetMyTurn() == true)
@@ -49,6 +59,7 @@ namespace Morabaraba
             else
                 return player2;
         }
+
         public static Player GetInactivePlayer()
         {
             if (player1.GetMyTurn() == false)
@@ -56,8 +67,10 @@ namespace Morabaraba
             else
                 return player2;
         }
+
         public static void SwitchTurn()
         {
+            Game.EnabledPanelContents(true);
             Player activePlayer = GetActivePlayer();
             Player inactivePlayer = GetInactivePlayer();
             if(GetActivePlayer().GetMyHandCells().Count > 0)
@@ -66,7 +79,66 @@ namespace Morabaraba
             }
             activePlayer.SetMyTurn(false);
             inactivePlayer.SetMyTurn(true);
+
+            if(inactivePlayer.GetMyName() == "PC")
+            {
+                Debug.WriteLine("ActivePlayer " + activePlayer.GetMyTurn() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyTurn()+"\n");
+                List<BoardCell> boardCopy = new List<BoardCell>();
+                
+                for(int i = 0; i < Game.GetBoard().GetCells().Count; i++)
+                {
+                    BoardCell cell = Game.GetBoard().GetCells().ElementAt(i);
+                    BoardCell cellCopy = new BoardCell(cell.GetId(), cell.GetNeighbors(), cell.GetCellPosition());
+                    cellCopy.SetState(cell.GetState());
+                    boardCopy.Add(cellCopy);
+                }
+                Tuple<int, int> move = aiPlayer.MoveMiniMax(inactivePlayer.GetMyColor(), boardCopy);
+                EvaluatePlayerState(inactivePlayer);
+                if (inactivePlayer.GetMyState() == Player.PlayerState.Placing)
+                {
+                    if (move.Item1 != -1)
+                    {
+                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        inactivePlayer.GetMyBoardCells().Add(Game.GetBoard().GetCells().ElementAt(move.Item1));
+                        Game.GetBoard().UpdateCells();
+                        GamePlay.CheckForMill(inactivePlayer, Game.GetBoard().GetCells().ElementAt(move.Item1));
+                        for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
+                        {
+                            if (GamePlay.CheckMillIsNew(inactivePlayer.GetMyMills()[i]))
+                            {
+                                inactivePlayer.SetMyState(Player.PlayerState.Taking);
+                            }
+                        }
+                    }
+                }else if(inactivePlayer.GetMyState() == Player.PlayerState.Taking)
+                {
+                    if (move.Item1 == -1)
+                    { 
+                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
+                        GamePlay.GetInactivePlayer().GetMyBoardCells().Remove(Game.GetBoard().GetCells().ElementAt(move.Item1));
+                        Game.GetBoard().UpdateCells();
+                        EvaluatePlayerState(inactivePlayer);
+                        activePlayer.SetMyTurn(true);
+                        inactivePlayer.SetMyTurn(false);
+                    }
+                }else if(inactivePlayer.GetMyState() == Player.PlayerState.Moving || inactivePlayer.GetMyState() == Player.PlayerState.Flying)
+                {
+                    if(move.Item1 != -1 && move.Item2 != -1)
+                    {
+                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
+                        Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        Game.GetBoard().UpdateCells();
+                        EvaluatePlayerState(inactivePlayer);
+                        activePlayer.SetMyTurn(true);
+                        inactivePlayer.SetMyTurn(false);
+                    }
+                }
+                //Game.EnabledPanelContents(true);
+                activePlayer.SetMyTurn(true);
+                inactivePlayer.SetMyTurn(false);
+            }
         }
+
         public static void CheckForMillCorner(Player activePlayer, BoardCell cell)
         {
             // trei puncte sunt coliniare daca aria triunghiului format de cele 3 puncte = 0
@@ -111,8 +183,13 @@ namespace Morabaraba
             {
                 for (int i = 0; i < currentCell.GetNeighbors().Length; i++)
                 {
-                    BoardCell checkedCell = allCells.ElementAt(currentCell.GetNeighbors()[i]);
-                    if (CheckPlayerHasCell(activePlayer, checkedCell.GetId()) && (checkedCell.GetIsVisited() == false))
+                    BoardCell checkedCell = null;
+                    if (currentCell.GetNeighbors()[i] != -1)
+                    {
+                        checkedCell = allCells.ElementAt(currentCell.GetNeighbors()[i]);
+                    }
+                    
+                    if (checkedCell != null && CheckPlayerHasCell(activePlayer, checkedCell.GetId()) && (checkedCell.GetIsVisited() == false))
                     {
                         CheckForMillCorner(activePlayer, checkedCell);//merg mai departe in adancime
                     }
@@ -126,6 +203,7 @@ namespace Morabaraba
                 }
             }
         }
+
         public static void CheckForMillMiddle(Player activePlayer, BoardCell cell)
         {
             Debug.WriteLine("CheckForMillMiddle");
@@ -133,40 +211,44 @@ namespace Morabaraba
             List<BoardCell> allCells = Game.GetBoard().GetCells();
             for (int i = 0; i < currentCell.GetNeighbors().Length; i++)
             {
-                if (CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[i]))
+                if (currentCell.GetNeighbors()[i] != -1 && CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[i]))
                 {
                     mill.GetMillCells().Add(currentCell);
                     mill.GetMillCells().Add(allCells.ElementAt(currentCell.GetNeighbors()[i]));
                     for (int j = 0; j < currentCell.GetNeighbors().Length && j!=i; j++)
                     {
-                        Debug.WriteLine(mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j])));
-                        bool contains = mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j]));
-                        Debug.WriteLine(currentCell.GetNeighbors()[j]);
-                        if ((CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[j])==true) && contains == false)
+                        if (currentCell.GetNeighbors()[j] != -1)
                         {
-                            mill.GetMillCells().Add(allCells.ElementAt(currentCell.GetNeighbors()[j]) );
-                            double Area = CalculateTriangleArea();
-                            Debug.WriteLine("Aria: " + Area);
-                            if (Area == 0.0)
+                            Debug.WriteLine(mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j])));
+                            bool contains = mill.GetMillCells().Contains(allCells.ElementAt(currentCell.GetNeighbors()[j]));
+                            Debug.WriteLine(currentCell.GetNeighbors()[j]);
+                            if ((CheckPlayerHasCell(activePlayer, currentCell.GetNeighbors()[j]) == true) && contains == false)
                             {
-                                for (int k = 0; k < activePlayer.GetMyMills().Length; k++)
+                                mill.GetMillCells().Add(allCells.ElementAt(currentCell.GetNeighbors()[j]));
+                                double Area = CalculateTriangleArea();
+                                Debug.WriteLine("Aria: " + Area);
+                                if (Area == 0.0)
                                 {
-                                    if (activePlayer.GetMyMills()[k].GetIsNew() == false)
+                                    for (int k = 0; k < activePlayer.GetMyMills().Length; k++)
                                     {
-                                        activePlayer.GetMyMills()[k] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
-                                        Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
-                                        SendMillMess(mill,"true");
-                                        break;
+                                        if (activePlayer.GetMyMills()[k].GetIsNew() == false)
+                                        {
+                                            activePlayer.GetMyMills()[k] = new Mill(mill.GetMillCells().ElementAt(0), mill.GetMillCells().ElementAt(1), mill.GetMillCells().ElementAt(2));
+                                            Debug.WriteLine("A creat moara din " + mill.GetMillCells().ElementAt(0).GetId() + " " + mill.GetMillCells().ElementAt(1).GetId() + " " + mill.GetMillCells().ElementAt(2).GetId());
+                                            SendMillMess(mill, "true");
+                                            break;
+                                        }
                                     }
                                 }
+                                mill.GetMillCells().RemoveAt(2);
                             }
-                            mill.GetMillCells().RemoveAt(2);
                         }
                     }
                     mill.GetMillCells().Clear();
                 }
             }
         }
+
         public static void CheckForMill(Player activePlayer, BoardCell cell)
         {
             if (activePlayer.GetMyBoardCells().Count() > 2)
@@ -201,6 +283,7 @@ namespace Morabaraba
                 }
             }
         }
+
         public static double CalculateTriangleArea()
         { 
             double[] sideLength = new double[3];//calcul laturi pentru heron
@@ -232,7 +315,8 @@ namespace Morabaraba
         {
             return mill.GetIsNew();
         }
-        public static bool CheckMillIsNew( Mill mill)
+
+        public static bool CheckMillIsNew(Mill mill)
         {
             if(mill !=new Mill())
             {
@@ -240,6 +324,7 @@ namespace Morabaraba
             }
             return false;
         }
+
         public static int NewPlayerMillCount(Player activePlayer)
         {
             int ct = 0;
@@ -252,6 +337,7 @@ namespace Morabaraba
             }
             return ct;
         }
+
         public static bool AllPlayerCellsInMills()
         {
             Player inactivePlayer = GetInactivePlayer();
@@ -269,6 +355,7 @@ namespace Morabaraba
             }
             return false;
         }
+
         public static void DestroyMill(BoardCell cell)
         {
             Player inactivePlayer = GetInactivePlayer();
@@ -284,6 +371,7 @@ namespace Morabaraba
                 }
             }
         }
+
         public static void SendMillMess( Mill mill, string partOfThree)
         {
             for(int i=0;i<mill.GetMillCells().Count;i++)
@@ -295,60 +383,95 @@ namespace Morabaraba
                 Game.GetBoard().GetCells().ElementAt(mill.GetMillCells().ElementAt(i).GetId()).SetPartOfThree(Convert.ToBoolean(partOfThree));
             }
         }
+
         public static bool CheckIfCanMove(Player player)
         {
             for(int i=0;i<player.GetMyBoardCells().Count;i++)
             {
                 for(int j=0;j< player.GetMyBoardCells()[i].GetNeighbors().Count(); j++)
                 {
-                    BoardCell checkCell = Game.GetBoard().GetCells().ElementAt(player.GetMyBoardCells()[i].GetNeighbors()[j]);
-                    if (checkCell.GetState() == BoardCell.CellState.Empty )
+                    if (player.GetMyBoardCells()[i].GetNeighbors()[j] != -1)
                     {
-                        return true;
+                        BoardCell checkCell = Game.GetBoard().GetCells().ElementAt(player.GetMyBoardCells()[i].GetNeighbors()[j]);
+                        if (checkCell.GetState() == BoardCell.CellState.Empty)
+                        {
+                            return true;
+                        }
                     }
                 }
             }
             return false;
         }
+
         public static void SetMyTurn1(int myTurn)
         {
             myTurn1 = myTurn;
         }
+
         public static void SetMyTurn2(int myTurn)
         {
             myTurn2 = myTurn;
         }
+
         public static int GetMyTurn1()
         {
             return myTurn1;
         }
+
         public static int GetMyTurn2()
         {
             return myTurn2;
         }
+
         public static Player GetPlayer1()
         {
             return player1;
         }
+
         public static Player GetPlayer2()
         {
             return player2;
         }
+
         public static void SetPlayer1(Player player)
         {
             player1 = player;
         }
+
         public static void SetPlayer2(Player player)
         {
             player2 = player;
         }
+
         public static Mill GetMill()
         {
             return mill;
         }
+
         public static void SetMill(Mill newMill)
         {
             mill = newMill;
+        }
+
+        public static void EvaluatePlayerState(Player player)
+        {
+            if (player.GetMyHandCells().Count > 0)
+            {
+                player.SetMyState(Player.PlayerState.Placing);
+            }
+            if (player.GetMyHandCells().Count == 0)
+            {
+                player.SetMyState(Player.PlayerState.Moving);
+            }
+            if (player.GetMyHandCells().Count == 0 && player.GetMyBoardCells().Count == 3)
+            {
+                player.SetMyState(Player.PlayerState.Flying);
+            }
+            if (player.GetMyHandCells().Count == 0 && player.GetMyBoardCells().Count < 3)
+            {
+                MessageBox.Show("Felicitari! AI castigat!");
+                System.Windows.Forms.Application.Exit();
+            }
         }
     }
 }

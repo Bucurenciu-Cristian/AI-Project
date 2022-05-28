@@ -25,12 +25,13 @@ namespace Morabaraba
         private static List<BoardCell> posibilities = new List<BoardCell>();
         private static BoardCell selectedCell;
         private static int counter = 5;
-
+        AI aiPlayer;
         public enum GameState
         {
             AgainstPC,
             AgainstPlayer
         }     
+
         public Game(GameState state, int playerIndex)
         {
             InitializeComponent();
@@ -50,6 +51,7 @@ namespace Morabaraba
                 board.GetPanels()[i].MouseDown += Game_MouseDown;
                 board.GetPanels()[i].DragOver += Game_DragOver;
                 board.GetPanels()[i].DragDrop += Game_DragDrop;
+                
                 this.Controls.Add(board.GetPanels()[i]);
             }
             this.Controls.Add(pictureBox);
@@ -57,20 +59,24 @@ namespace Morabaraba
             messageReceiver.DoWork += messageReceiver_DoWork;
             CheckForIllegalCrossThreadCalls = false;
         }
+       
         private void messageReceiver_DoWork(object sender, DoWorkEventArgs e)
         {
             ReceiveMessage();
             Debug.WriteLine("------Message Receiver------\r\n" + data);
         }
+
         public void InitalizeGame()
         {
             if (playerIndex == 1)
             {
                 if (gameState == GameState.AgainstPC)
                 {
+                    aiPlayer = new AI();
                     GamePlay.WhoStartsTheGame();
                     GamePlay.CreatePlayers();
                     SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "PC");
+                    GamePlay.GetPlayer2().SetMyName("PC");
                 }
                 else if (gameState == GameState.AgainstPlayer)//host
                 {
@@ -151,7 +157,14 @@ namespace Morabaraba
             SetPlayerTurn(GamePlay.GetMyTurn1(), GamePlay.GetMyTurn2());
             SetTextFromTextBox("Playerul " + GamePlay.GetPlayer1().GetMyName() + " are randul " + GamePlay.GetPlayer1().GetMyTurn() + " si culoarea " + (GamePlay.GetPlayer1().GetMyColor() == true ? "alb" : "negru") + " " + GamePlay.GetPlayer1().GetMyHandCells().Count + " piese\r\n");
             SetTextFromTextBox("Playerul " + GamePlay.GetPlayer2().GetMyName() + " are randul " + GamePlay.GetPlayer2().GetMyTurn() + " si culoarea " + (GamePlay.GetPlayer2().GetMyColor() == true ? "alb" : "negru") + " " + GamePlay.GetPlayer2().GetMyHandCells().Count + " piese\r\n");
+
+            if (GamePlay.GetActivePlayer().GetMyName() == "PC")
+            {
+                aiPlayer.PlaceRandomPiece();
+                GamePlay.SwitchTurn();
+            }
         }
+
         public void DecodeMessage()
         {
             data = data.Trim();
@@ -290,6 +303,7 @@ namespace Morabaraba
                 DecodeMessage();
             }
         }
+
         public void PlaceCow(object sender, string currentPlayerName)
         {
             Player activePlayer = GamePlay.GetActivePlayer();
@@ -361,6 +375,7 @@ namespace Morabaraba
                 }
             }
         }
+
         public void TakeCow(object sender)
         {
             string inactivePlayerName = GamePlay.GetInactivePlayer().GetMyName();
@@ -473,6 +488,7 @@ namespace Morabaraba
                 MessageBox.Show("Alegeti o piesa valida");
             }
         }
+
         public static void VerifyCowInMill(object sender)
         {
             Player activePlayer = GamePlay.GetActivePlayer();
@@ -490,6 +506,7 @@ namespace Morabaraba
                 }
             }
         }
+
         public static void VerifyIfDestroyedMill(int index, object sender)
         {
             Player activePlayer = GamePlay.GetActivePlayer();
@@ -505,10 +522,12 @@ namespace Morabaraba
                 }
             }
         }
+
         private void PictureBox_MouseClick(object sender, MouseEventArgs e)
         {
             Game_MouseClick(sender, e);
         }
+
         private void Game_MouseClick(object sender, MouseEventArgs e)
         {
             string currentPlayerName = labelName1.Text;
@@ -545,6 +564,7 @@ namespace Morabaraba
                     break;
             }
         }
+
         private void buttonSurrender_Click(object sender, EventArgs e)
         {
             if(gameState == GameState.AgainstPlayer)
@@ -559,20 +579,24 @@ namespace Morabaraba
             messageReceiver.WorkerSupportsCancellation = true;  
             messageReceiver.CancelAsync();
         }
+
         public void SetTextFromTextBox(string newText)
         {
             this.textBoxGameLog.AppendText(newText);
         }
+
         public void SetPlayerName(string name1, string name2)
         {
             this.labelName1.Text = name1;
             this.labelName2.Text = name2;
         }
+
         public void SetPlayerTurn(int myTurn1, int myTurn2)
         {
             this.label1.Text = myTurn1.ToString();
             this.label2.Text = myTurn2.ToString();
         }
+
         public void ReceiveMessage()
         {
             byte[] bytes = null;
@@ -580,19 +604,23 @@ namespace Morabaraba
             int bytesRec = socket.Receive(bytes);
             Game.data = Encoding.ASCII.GetString(bytes, 0, bytesRec);
         }
+
         public static Socket GetSocket()
         {
             return socket;
         }
+
         public static Board GetBoard()
         {
             return board;
         }
+
         public static GameState GetState()
         {
             return gameState;
         }
-        private void EnabledPanelContents( bool enabled )
+
+        public static void EnabledPanelContents( bool enabled )
         {
             for(int i=0;i<board.GetPanels().Length;i++)
             {
@@ -602,6 +630,7 @@ namespace Morabaraba
                 }
             }
         }
+
         private void Game_MouseDown(object sender, MouseEventArgs e)
         {
             Player activePlayer = GamePlay.GetActivePlayer();
@@ -708,6 +737,7 @@ namespace Morabaraba
             }
         
         }
+
         private void Game_DragOver(object sender, DragEventArgs e)
         {
             Player activePlayer = GamePlay.GetActivePlayer();
@@ -767,6 +797,7 @@ namespace Morabaraba
                 }
                    
         }
+
         private void Game_DragDrop(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;

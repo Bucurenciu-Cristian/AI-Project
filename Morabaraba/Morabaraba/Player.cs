@@ -23,6 +23,8 @@ namespace Morabaraba
         private PlayerState myState;
         private Mill[] myMills;
         private string myName = "";
+        
+        public Player() {}
         public Player(bool myTurn, bool myColor, string name)
         {
             this.myTurn = myTurn;
@@ -35,6 +37,7 @@ namespace Morabaraba
             InitializeMills();
             InitializeHandCells();
         }
+
         public void InitializeMills()
         {
             for(int i= 0; i < myMills.Length; i++)
@@ -42,6 +45,7 @@ namespace Morabaraba
                 myMills[i] = new Mill();
             }
         }
+
         public void InitializeHandCells()
         {
             for(int i=0;i<12;i++)//12 vaci are fiecare player
@@ -49,6 +53,7 @@ namespace Morabaraba
                 myHandCells.Add(new BoardCell());
             }
         }
+
         public System.Drawing.Bitmap DrawMyColor()
         {
             if (myColor == false)
@@ -60,6 +65,7 @@ namespace Morabaraba
                 return Properties.Resources.whitePiece;
             }
         }
+
         public void PrintPlayerMill(Player activePlayer)
         {
             for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
@@ -75,61 +81,76 @@ namespace Morabaraba
                 }
             }
         }
+
         public bool GetMyTurn()
         {
             return myTurn;
         }
+
         public void SetMyTurn(bool myTurn)
         {
             this.myTurn = myTurn;
         }
+
         public bool GetMyColor()
         {
             return myColor;
         }
+
         public void SetMyColor(bool myColor)
         {
             this.myColor = myColor;
         }
+
         public List<BoardCell> GetMyHandCells()
         {
             return myHandCells;
         }
+
         public void SetMyHandCells(List<BoardCell> myHandCells)
         {
             this.myHandCells = myHandCells;
         }
+
         public List<BoardCell> GetMyBoardCells()
         {
             return this.myBoardCells;
         }
+
         public void SetMyBoardCells(List<BoardCell> myBoardCells)
         {
             this.myBoardCells = myBoardCells;
         }
+
         public Mill[] GetMyMills()
         {
             return this.myMills;
         }
+
         public void SetMyMills(Mill[] myMills)
         {
             this.myMills = myMills;
         }
+
         public PlayerState GetMyState()
         {
             return myState;
         }
+
         public void SetMyState(PlayerState myState)
         {
             this.myState = myState;
         }
+
         public string GetMyName()
         {
             return this.myName;
         }
+
         public void SetMyName(string myName)
         {
             this.myName = myName;
         }
+
     }
 }
