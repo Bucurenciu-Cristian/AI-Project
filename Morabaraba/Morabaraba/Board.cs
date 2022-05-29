@@ -180,6 +180,11 @@ namespace Morabaraba
             return this.cells;
         }
 
+        public void SetCells(List<BoardCell> newCells)
+        {
+            this.cells = newCells;
+        }
+
         public Panel[] GetPanels()
         {
             return this.panels;

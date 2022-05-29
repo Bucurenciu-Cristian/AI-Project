@@ -655,7 +655,8 @@ namespace Morabaraba
                                 if (playerState == enemyState)
                                 {
                                     counter = counter - 1;
-                                    socket.Send(Encoding.ASCII.GetBytes(counter + " Counter " + "0 \r\n"));
+                                    if(gameState == GameState.AgainstPlayer)
+                                        socket.Send(Encoding.ASCII.GetBytes(counter + " Counter " + "0 \r\n"));
                                 }
                                 Debug.WriteLine(counter + "counter");
                                 if (counter == 0)

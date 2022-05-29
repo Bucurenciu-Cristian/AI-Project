@@ -80,8 +80,9 @@ namespace Morabaraba
             activePlayer.SetMyTurn(false);
             inactivePlayer.SetMyTurn(true);
 
-            if(inactivePlayer.GetMyName() == "PC")
+            if(inactivePlayer.GetMyTurn() == true && inactivePlayer.GetMyName() == "PC")
             {
+                inactivePlayer.GetMyHandCells().RemoveAt(inactivePlayer.GetMyHandCells().Count - 1);
                 Debug.WriteLine("ActivePlayer " + activePlayer.GetMyTurn() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyTurn()+"\n");
                 List<BoardCell> boardCopy = new List<BoardCell>();
                 
@@ -110,17 +111,6 @@ namespace Morabaraba
                             }
                         }
                     }
-                }else if(inactivePlayer.GetMyState() == Player.PlayerState.Taking)
-                {
-                    if (move.Item1 == -1)
-                    { 
-                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
-                        GamePlay.GetInactivePlayer().GetMyBoardCells().Remove(Game.GetBoard().GetCells().ElementAt(move.Item1));
-                        Game.GetBoard().UpdateCells();
-                        EvaluatePlayerState(inactivePlayer);
-                        activePlayer.SetMyTurn(true);
-                        inactivePlayer.SetMyTurn(false);
-                    }
                 }else if(inactivePlayer.GetMyState() == Player.PlayerState.Moving || inactivePlayer.GetMyState() == Player.PlayerState.Flying)
                 {
                     if(move.Item1 != -1 && move.Item2 != -1)
@@ -129,11 +119,27 @@ namespace Morabaraba
                         Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                         Game.GetBoard().UpdateCells();
                         EvaluatePlayerState(inactivePlayer);
-                        activePlayer.SetMyTurn(true);
-                        inactivePlayer.SetMyTurn(false);
                     }
                 }
-                //Game.EnabledPanelContents(true);
+                if (inactivePlayer.GetMyState() == Player.PlayerState.Taking)
+                {
+                    if (move.Item1 != -1)
+                    {
+                        for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
+                        {
+                            if (GamePlay.CheckMillIsNew(inactivePlayer.GetMyMills()[i]))
+                            {
+                                inactivePlayer.GetMyMills()[i].SetIsNew(false);
+                                Game.GetBoard().SetCells(aiPlayer.TakeCow(inactivePlayer.GetMyColor(), Game.GetBoard().GetCells()));
+                                EvaluatePlayerState(inactivePlayer); 
+                                activePlayer.SetMyTurn(true); 
+                                inactivePlayer.SetMyTurn(false);
+                                Game.GetBoard().UpdateCells();
+                            }
+                        }
+                        EvaluatePlayerState(inactivePlayer);
+                    }
+                }
                 activePlayer.SetMyTurn(true);
                 inactivePlayer.SetMyTurn(false);
             }

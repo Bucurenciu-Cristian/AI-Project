@@ -13,11 +13,6 @@ namespace Morabaraba
         Tuple<int, int> nextMinMove;
         public const int Depth = 5;
 
-        public void BoardEvaluation()
-        {
-
-        }
-
         public void PlaceRandomPiece()
         {
             Random random = new Random();
@@ -105,11 +100,12 @@ namespace Morabaraba
             Tuple<int, int>[] almostMill = new Tuple<int, int>[100];
             int aux = 0;
 
-            if (color)//white
+            if (!color)//white
             {
                 foreach(BoardCell cell in boardCells)
                 {
-                    occupiedPositions = GetOccupiedPositions(cell.GetId(), BoardCell.CellState.WhiteOccupied, boardCells);
+                    occupiedPositions = new int[4];
+                    occupiedPositions = GetOccupiedPositions(cell.GetId(), BoardCell.CellState.BlackOccupied, boardCells);
                     for (int i = 0; i < 4; i++)
                     {
                         if(occupiedPositions[i] != -1)
@@ -120,10 +116,11 @@ namespace Morabaraba
                     }
                 }
             }
-            else
+            else//black
             {
                 foreach (BoardCell cell in boardCells)
                 {
+                    occupiedPositions = new int[4];
                     occupiedPositions = GetOccupiedPositions(cell.GetId(), BoardCell.CellState.BlackOccupied, boardCells);
                     for (int i = 0; i < 4; i++)
                     {
@@ -138,7 +135,7 @@ namespace Morabaraba
             return almostMill;
         }
     
-        public int ChooseWhichStone(bool color, List<BoardCell> boardCells)
+        public int ChooseWhichCow(bool color, List<BoardCell> boardCells)
         {
             Tuple<int,int>[] almostMill = AlmostMill(color, boardCells);
             int almostMillCounter = 0;
@@ -237,7 +234,7 @@ namespace Morabaraba
                         {
                             if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
                             {
-                                copyBoard = TakeStone(color, copyBoard);
+                                copyBoard = TakeCow(color, copyBoard);
                             }
                         }
                         int eval = MiniMax(!color, copyBoard,depth - 1, copyBoard);
@@ -274,7 +271,7 @@ namespace Morabaraba
                         {
                             if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
                             {
-                                copyBoard = TakeStone(color, copyBoard);
+                                copyBoard = TakeCow(color, copyBoard);
                             }
                         }
                         int eval = MiniMax(!color, originalBoard, depth - 1, copyBoard);
@@ -289,10 +286,21 @@ namespace Morabaraba
             }
         }
 
-        public List<BoardCell> TakeStone(bool color, List<BoardCell> currentBoard)
+        public List<BoardCell> TakeCow(bool color, List<BoardCell> currentBoard)
         {
-            int id = ChooseWhichStone(color, currentBoard);
+            int id = ChooseWhichCow(color, currentBoard);
             currentBoard.ElementAt(id).SetState(BoardCell.CellState.Empty);
+            Player player;
+            if(GamePlay.GetPlayer1().GetMyColor() != color)
+            {
+                player = GamePlay.GetPlayer1();
+            }
+            else
+            {
+                player = GamePlay.GetPlayer2();
+            }
+            player.GetMyBoardCells().Remove(currentBoard.ElementAt(id));
+
             return currentBoard;
         }
 
