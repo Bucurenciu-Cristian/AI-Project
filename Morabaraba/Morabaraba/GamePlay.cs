@@ -82,8 +82,8 @@ namespace Morabaraba
 
             if(inactivePlayer.GetMyTurn() == true && inactivePlayer.GetMyName() == "PC")
             {
-                inactivePlayer.GetMyHandCells().RemoveAt(inactivePlayer.GetMyHandCells().Count - 1);
                 Debug.WriteLine("ActivePlayer " + activePlayer.GetMyTurn() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyTurn()+"\n");
+                Debug.WriteLine("ActivePlayer " + activePlayer.GetMyName() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyName()+ "\n");
                 List<BoardCell> boardCopy = new List<BoardCell>();
                 
                 for(int i = 0; i < Game.GetBoard().GetCells().Count; i++)
@@ -97,6 +97,7 @@ namespace Morabaraba
                 EvaluatePlayerState(inactivePlayer);
                 if (inactivePlayer.GetMyState() == Player.PlayerState.Placing)
                 {
+                    Debug.WriteLine(" pune piesa jos");
                     if (move.Item1 != -1)
                     {
                         Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
@@ -113,16 +114,19 @@ namespace Morabaraba
                     }
                 }else if(inactivePlayer.GetMyState() == Player.PlayerState.Moving || inactivePlayer.GetMyState() == Player.PlayerState.Flying)
                 {
-                    if(move.Item1 != -1 && move.Item2 != -1)
+                    Debug.WriteLine(" muta piesa huo");
+                    if (move.Item1 != -1 && move.Item2 != -1 && move.Item1!=move.Item2)
                     {
-                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
-                        Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        //Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        //Game.GetBoard().UpdateCells();
+                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(!inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                         Game.GetBoard().UpdateCells();
                         EvaluatePlayerState(inactivePlayer);
                     }
                 }
                 if (inactivePlayer.GetMyState() == Player.PlayerState.Taking)
                 {
+                    Debug.WriteLine(" ia piesa huo");
                     if (move.Item1 != -1)
                     {
                         for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
@@ -140,6 +144,12 @@ namespace Morabaraba
                         EvaluatePlayerState(inactivePlayer);
                     }
                 }
+                if (inactivePlayer.GetMyHandCells().Count > 0)
+                {
+                    inactivePlayer.GetMyHandCells().RemoveAt(inactivePlayer.GetMyHandCells().Count - 1);
+                }
+                Debug.WriteLine(inactivePlayer.GetMyHandCells().Count + " graaaaaaaaas");
+                Debug.WriteLine(inactivePlayer.GetMyBoardCells().Count + " graaaaaaaaas");
                 activePlayer.SetMyTurn(true);
                 inactivePlayer.SetMyTurn(false);
             }
@@ -464,18 +474,25 @@ namespace Morabaraba
             if (player.GetMyHandCells().Count > 0)
             {
                 player.SetMyState(Player.PlayerState.Placing);
+                Debug.WriteLine("Placing");
             }
             if (player.GetMyHandCells().Count == 0)
             {
-                player.SetMyState(Player.PlayerState.Moving);
-            }
-            if (player.GetMyHandCells().Count == 0 && player.GetMyBoardCells().Count == 3)
-            {
-                player.SetMyState(Player.PlayerState.Flying);
+                if(player.GetMyBoardCells().Count == 3)
+                {
+                    Debug.WriteLine(player.GetMyBoardCells().Count + " "+ player.GetMyName());
+                    player.SetMyState(Player.PlayerState.Flying);
+                    Debug.WriteLine("Flying");
+                }
+                else
+                {
+                    player.SetMyState(Player.PlayerState.Moving);  
+                    Debug.WriteLine("Moving");
+                }
             }
             if (player.GetMyHandCells().Count == 0 && player.GetMyBoardCells().Count < 3)
             {
-                MessageBox.Show("Felicitari! AI castigat!");
+                MessageBox.Show("Felicitari! AI castigat!"+ player.GetMyName());
                 System.Windows.Forms.Application.Exit();
             }
         }

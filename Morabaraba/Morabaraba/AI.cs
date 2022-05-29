@@ -18,6 +18,7 @@ namespace Morabaraba
             Random random = new Random();
             int cellId = random.Next(1,24);
             Game.GetBoard().GetCells().ElementAt(cellId).SetState(GamePlay.GetPlayer2().GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+            GamePlay.GetActivePlayer().GetMyBoardCells().Add(Game.GetBoard().GetCells().ElementAt(cellId));
             Game.GetBoard().UpdateCells();
         }
 
@@ -229,7 +230,7 @@ namespace Morabaraba
                             copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.WhiteOccupied);
                         }
                         Player activePlayer = GamePlay.GetPlayer1().GetMyColor()?GamePlay.GetPlayer1():GamePlay.GetPlayer2();
-                        GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
+                        //GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
                         for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
                         {
                             if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
@@ -266,7 +267,7 @@ namespace Morabaraba
                             copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.BlackOccupied);
                         }
                         Player activePlayer = GamePlay.GetPlayer1().GetMyColor() ? GamePlay.GetPlayer1() : GamePlay.GetPlayer2();
-                        GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
+                        //GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
                         for (int i = 0; i < activePlayer.GetMyMills().Count(); i++)
                         {
                             if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))

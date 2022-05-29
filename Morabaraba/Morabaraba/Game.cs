@@ -635,6 +635,8 @@ namespace Morabaraba
         {
             Player activePlayer = GamePlay.GetActivePlayer();
             string currentPlayerName = labelName1.Text;
+            if(activePlayer.GetMyState() != Player.PlayerState.Taking)
+                 GamePlay.EvaluatePlayerState(activePlayer);
             if ((activePlayer.GetMyState() == Player.PlayerState.Moving || activePlayer.GetMyState() == Player.PlayerState.Flying) && activePlayer.GetMyName().Equals(currentPlayerName))
             {
                 Panel panel = sender as Panel;
@@ -652,7 +654,7 @@ namespace Morabaraba
                                 Panel panelToVerify = board.GetPanels()[board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId()];
                                 Player.PlayerState playerState = GamePlay.GetActivePlayer().GetMyState();
                                 Player.PlayerState enemyState = GamePlay.GetInactivePlayer().GetMyState();
-                                if (playerState == enemyState)
+                                if (playerState == enemyState && playerState == Player.PlayerState.Flying)
                                 {
                                     counter = counter - 1;
                                     if(gameState == GameState.AgainstPlayer)
