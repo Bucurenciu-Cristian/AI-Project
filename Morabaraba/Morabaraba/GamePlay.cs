@@ -117,11 +117,25 @@ namespace Morabaraba
                     Debug.WriteLine(" muta piesa huo");
                     if (move.Item1 != -1 && move.Item2 != -1 && move.Item1!=move.Item2)
                     {
-                        //Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
-                        //Game.GetBoard().UpdateCells();
-                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(!inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
+                        Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                        for(int i = 0; i < inactivePlayer.GetMyBoardCells().Count; i++)
+                        {
+                            if (inactivePlayer.GetMyBoardCells().ElementAt(i).GetId() == move.Item1)
+                            {
+                                inactivePlayer.GetMyBoardCells().ElementAt(i).SetId(move.Item2);
+                            }
+                        }
+                        
+                        GamePlay.CheckForMill(inactivePlayer, Game.GetBoard().GetCells().ElementAt(move.Item2));
+                        for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
+                        {
+                            if (GamePlay.CheckMillIsNew(inactivePlayer.GetMyMills()[i]))
+                            {
+                                inactivePlayer.SetMyState(Player.PlayerState.Taking);
+                            }
+                        }
                         Game.GetBoard().UpdateCells();
-                        EvaluatePlayerState(inactivePlayer);
                     }
                 }
                 if (inactivePlayer.GetMyState() == Player.PlayerState.Taking)

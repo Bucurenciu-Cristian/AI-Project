@@ -328,8 +328,7 @@ namespace Morabaraba
         {
             Tuple<int, int>[] possibleMoves = new Tuple<int, int>[100];
 
-            if(GamePlay.GetPlayer1().GetMyState() == Player.PlayerState.Placing || GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Placing
-                || GamePlay.GetPlayer1().GetMyState() == Player.PlayerState.Flying || GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Flying)
+            if(GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Placing || GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Flying)
             {
                 for(int i = 0; i < boardCells.Count; i++)
                 {
