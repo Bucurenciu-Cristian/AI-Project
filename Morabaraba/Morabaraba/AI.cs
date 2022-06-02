@@ -22,55 +22,41 @@ namespace Morabaraba
             Game.GetBoard().UpdateCells();
         }
 
-        public int PiecesCountGameEvaluation(Player player1, Player player2)
+        public int PiecesCountGameEvaluation(List<BoardCell> boardCell, bool color)
         {
-            if (player2.GetMyName() == "PC" && player2.GetMyColor())
+            int whitePieces = 0;
+            int blackPieces = 0;
+            foreach(BoardCell cell in boardCell)
             {
-                if (player1.GetMyColor())
+                if(cell.GetState() == BoardCell.CellState.WhiteOccupied)
                 {
-                    return player1.GetMyBoardCells().Count - player2.GetMyBoardCells().Count;
+                    whitePieces++;
+                }
+                if(cell.GetState() == BoardCell.CellState.BlackOccupied)
+                {
+                    blackPieces++;
+                }
+            }
+            if (GamePlay.GetPlayer2().GetMyColor())
+            {
+                if (color)
+                {
+                    return whitePieces - blackPieces;
                 }
                 else
                 {
-                    return player2.GetMyBoardCells().Count - player1.GetMyBoardCells().Count;
+                    return blackPieces - whitePieces;
                 }
             }
             else
             {
-                if (player1.GetMyColor())
+                if (color)
                 {
-                    return player2.GetMyBoardCells().Count - player1.GetMyBoardCells().Count;
+                    return blackPieces - whitePieces;
                 }
                 else
                 {
-                    return player1.GetMyBoardCells().Count - player2.GetMyBoardCells().Count;
-                }
-            }
-
-        }
-
-        public int MillsCountGameEvaluation(Player player1, Player player2)
-        {
-            if (player2.GetMyName() == "PC" && player2.GetMyColor())
-            {
-                if (player1.GetMyColor())
-                {
-                    return player1.GetMyMills().Length * 10;
-                }
-                else
-                {
-                    return player2.GetMyMills().Length * (-10);
-                }
-            }
-            else
-            {
-                if (player1.GetMyColor())
-                {
-                    return player2.GetMyMills().Length * (-10);
-                }
-                else
-                {
-                    return player1.GetMyMills().Length * 10;
+                    return whitePieces - blackPieces;
                 }
             }
 
@@ -192,7 +178,7 @@ namespace Morabaraba
 
         public Tuple<int, int> MoveMiniMax(bool color, List<BoardCell> boardCells)
         {
-            int bestMoveValue = MiniMax(color, boardCells, Depth,boardCells);
+            int bestMoveValue = MiniMax(color, Depth,boardCells);
             Tuple<int, int> bestMove;
             if (color)
             {
@@ -205,29 +191,33 @@ namespace Morabaraba
             return bestMove;
         }
 
-        public int MiniMax(bool color, List<BoardCell> originalBoard, int depth, List<BoardCell> cloneBoard)
+        public int MiniMax(bool color, int depth, List<BoardCell> cloneBoard)
         {
             if(depth == 0)
             {
-                return PiecesCountGameEvaluation(GamePlay.GetPlayer1(), GamePlay.GetPlayer2());
+                return PiecesCountGameEvaluation(cloneBoard,color);
             }
             if (color)
             {
                 //white
                 int maxEval = Int32.MinValue;
-                foreach(Tuple<int,int> move in GetAllPossibleMoves(color, cloneBoard))
+                Tuple<int, int>[] possibleMoves = GetAllPossibleMoves(color, cloneBoard);
+                foreach (Tuple<int,int> move in possibleMoves)
                 {
                     if((move != null) && (move.Item1 != -1 && move.Item2 != -1))
                     {
                         List<BoardCell> copyBoard = new List<BoardCell>(cloneBoard);
                         if ((GamePlay.GetPlayer1().GetMyState() == Player.PlayerState.Placing || GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Placing))
                         {
-                            copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.WhiteOccupied);
+                            copyBoard.ElementAt(move.Item1).SetState(GamePlay.GetPlayer2().GetMyColor()?BoardCell.CellState.WhiteOccupied:BoardCell.CellState.BlackOccupied);
                         }
                         else
                         {
-                            copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
-                            copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.WhiteOccupied);
+                            if (move.Item1 != move.Item2)
+                            {
+                                copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
+                                copyBoard.ElementAt(move.Item2).SetState(GamePlay.GetPlayer2().GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
+                            }
                         }
                         Player activePlayer = GamePlay.GetPlayer1().GetMyColor()?GamePlay.GetPlayer1():GamePlay.GetPlayer2();
                         //GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
@@ -238,7 +228,7 @@ namespace Morabaraba
                                 copyBoard = TakeCow(color, copyBoard);
                             }
                         }
-                        int eval = MiniMax(!color, copyBoard,depth - 1, copyBoard);
+                        int eval = MiniMax(!color,depth - 1, copyBoard);
                         if(depth == Depth && eval > maxEval)
                         {
                             nextMaxMove = move;
@@ -252,7 +242,8 @@ namespace Morabaraba
             {
                 //black
                 int minEval = Int32.MinValue;
-                foreach (Tuple<int, int> move in GetAllPossibleMoves(color, cloneBoard))
+                Tuple<int, int>[] possibleMoves = GetAllPossibleMoves(color, cloneBoard);
+                foreach (Tuple<int, int> move in possibleMoves)
                 {
                     if ((move != null) && (move.Item1 != -1 && move.Item2 != -1))
                     {
@@ -263,8 +254,11 @@ namespace Morabaraba
                         }
                         else
                         {
-                            copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
-                            copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.BlackOccupied);
+                            if(move.Item1 != move.Item2)
+                            {
+                                copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
+                                copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.BlackOccupied);
+                            }
                         }
                         Player activePlayer = GamePlay.GetPlayer1().GetMyColor() ? GamePlay.GetPlayer1() : GamePlay.GetPlayer2();
                         //GamePlay.CheckForMill(activePlayer, copyBoard.ElementAt(move.Item2));
@@ -275,7 +269,7 @@ namespace Morabaraba
                                 copyBoard = TakeCow(color, copyBoard);
                             }
                         }
-                        int eval = MiniMax(!color, originalBoard, depth - 1, copyBoard);
+                        int eval = MiniMax(!color, depth - 1, copyBoard);
                         if (depth == Depth && eval < minEval)
                         {
                             nextMinMove = move;
@@ -328,7 +322,7 @@ namespace Morabaraba
         {
             Tuple<int, int>[] possibleMoves = new Tuple<int, int>[100];
 
-            if(GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Placing || GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Flying)
+            if(GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Placing)
             {
                 for(int i = 0; i < boardCells.Count; i++)
                 {
@@ -338,7 +332,7 @@ namespace Morabaraba
                     }
                 }
             }
-            else
+            else if(GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Moving)
             {
 
                 if (color)
@@ -350,7 +344,8 @@ namespace Morabaraba
                             int[] freeNeighboors = GetFreeNeighboorPositions(boardCells.ElementAt(i).GetId(), boardCells);
                             for(int j = 0; j < 4; j++)
                             {
-                                possibleMoves[i * 4 + j] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(),freeNeighboors[j]);
+                                if((freeNeighboors[j] !=- 1) && (boardCells.ElementAt(freeNeighboors[j]).GetState() == BoardCell.CellState.Empty))
+                                    possibleMoves[i * 4 + j] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(),freeNeighboors[j]);
                             }
                         }
                     }
@@ -364,7 +359,42 @@ namespace Morabaraba
                             int[] freeNeighboors = GetFreeNeighboorPositions(boardCells.ElementAt(i).GetId(), boardCells);
                             for (int j = 0; j < 4; j++)
                             {
-                                possibleMoves[i * 4 + j] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(), freeNeighboors[j]);
+                                if ((freeNeighboors[j] != -1) && (boardCells.ElementAt(freeNeighboors[j]).GetState() == BoardCell.CellState.Empty))
+                                    possibleMoves[i * 4 + j] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(), freeNeighboors[j]);
+                            }
+                        }
+                    }
+                }
+            }else if(GamePlay.GetPlayer2().GetMyState() == Player.PlayerState.Flying)
+            {
+                if (color)
+                {
+                    for (int i = 0; i < boardCells.Count; i++)
+                    {
+                        if (boardCells.ElementAt(i).GetState() == BoardCell.CellState.WhiteOccupied)
+                        {
+                            for (int j = 0; j < boardCells.Count; j++)
+                            {
+                                if ((i != j) && boardCells.ElementAt(j).GetState() == BoardCell.CellState.Empty)
+                                {
+                                    possibleMoves[i] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(), boardCells.ElementAt(j).GetId());
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < boardCells.Count; i++)
+                    {
+                        if (boardCells.ElementAt(i).GetState() == BoardCell.CellState.BlackOccupied)
+                        {
+                            for (int j = 0; j < boardCells.Count; j++)
+                            {
+                                if ((i != j) && boardCells.ElementAt(j).GetState() == BoardCell.CellState.Empty)
+                                {
+                                    possibleMoves[i] = new Tuple<int, int>(boardCells.ElementAt(i).GetId(), boardCells.ElementAt(j).GetId());
+                                }
                             }
                         }
                     }

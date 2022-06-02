@@ -77,6 +77,8 @@ namespace Morabaraba
             {
                 GetActivePlayer().GetMyHandCells().RemoveAt(GetActivePlayer().GetMyHandCells().Count - 1);
             }
+            Game.GetBoard().UpdateCells();
+            EvaluatePlayerState(activePlayer);
             activePlayer.SetMyTurn(false);
             inactivePlayer.SetMyTurn(true);
 
@@ -114,9 +116,25 @@ namespace Morabaraba
                     }
                 }else if(inactivePlayer.GetMyState() == Player.PlayerState.Moving || inactivePlayer.GetMyState() == Player.PlayerState.Flying)
                 {
-                    Debug.WriteLine(" muta piesa huo");
+                    Debug.WriteLine("Mutare inainte de if: Itm1:"+move.Item1+" Itm2:"+move.Item2);
+                    if(move.Item1 == move.Item2)
+                    {
+                        boardCopy = new List<BoardCell>();
+                        for (int i = 0; i < Game.GetBoard().GetCells().Count; i++)
+                        {
+                            BoardCell cell = Game.GetBoard().GetCells().ElementAt(i);
+                            BoardCell cellCopy = new BoardCell(cell.GetId(), cell.GetNeighbors(), cell.GetCellPosition());
+                            cellCopy.SetState(cell.GetState());
+                            boardCopy.Add(cellCopy);
+                        }
+                        do
+                        {
+                            move = aiPlayer.MoveMiniMax(inactivePlayer.GetMyColor(), boardCopy);
+                        } while (move.Item1 == move.Item2);
+                    }
                     if (move.Item1 != -1 && move.Item2 != -1 && move.Item1!=move.Item2)
                     {
+                        Debug.WriteLine("Mutare dupa if█: Itm1:" + move.Item1 + " Itm2:" + move.Item2);
                         Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
                         Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
                         for(int i = 0; i < inactivePlayer.GetMyBoardCells().Count; i++)
