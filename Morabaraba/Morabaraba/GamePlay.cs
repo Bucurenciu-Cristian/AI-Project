@@ -79,6 +79,7 @@ namespace Morabaraba
             }
             Game.GetBoard().UpdateCells();
             EvaluatePlayerState(activePlayer);
+            EvaluatePlayerState(inactivePlayer);
             activePlayer.SetMyTurn(false);
             inactivePlayer.SetMyTurn(true);
 
@@ -87,7 +88,7 @@ namespace Morabaraba
                 Debug.WriteLine("ActivePlayer " + activePlayer.GetMyTurn() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyTurn()+"\n");
                 Debug.WriteLine("ActivePlayer " + activePlayer.GetMyName() + "\nInactivePlayer(PC)" + inactivePlayer.GetMyName()+ "\n");
                 List<BoardCell> boardCopy = new List<BoardCell>();
-                
+                Debug.WriteLine(inactivePlayer.GetMyState());
                 for(int i = 0; i < Game.GetBoard().GetCells().Count; i++)
                 {
                     BoardCell cell = Game.GetBoard().GetCells().ElementAt(i);
@@ -95,8 +96,10 @@ namespace Morabaraba
                     cellCopy.SetState(cell.GetState());
                     boardCopy.Add(cellCopy);
                 }
+                Debug.WriteLine(inactivePlayer.GetMyState() + "nu intraaaa :(");
                 Tuple<int, int> move = aiPlayer.MoveMiniMax(inactivePlayer.GetMyColor(), boardCopy);
                 EvaluatePlayerState(inactivePlayer);
+                Debug.WriteLine(inactivePlayer.GetMyState()+ "nu intraaaa :(");
                 if (inactivePlayer.GetMyState() == Player.PlayerState.Placing)
                 {
                     Debug.WriteLine(" pune piesa jos");
@@ -129,7 +132,7 @@ namespace Morabaraba
                         }
                         do
                         {
-                            move = aiPlayer.MoveMiniMax(inactivePlayer.GetMyColor(), boardCopy);
+                          move = aiPlayer.MoveMiniMax(inactivePlayer.GetMyColor(), boardCopy);
                         } while (move.Item1 == move.Item2);
                     }
                     if (move.Item1 != -1 && move.Item2 != -1 && move.Item1!=move.Item2)
@@ -137,28 +140,16 @@ namespace Morabaraba
                         Debug.WriteLine("Mutare dupa if█: Itm1:" + move.Item1 + " Itm2:" + move.Item2);
                         Game.GetBoard().GetCells().ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
                         Game.GetBoard().GetCells().ElementAt(move.Item2).SetState(inactivePlayer.GetMyColor() ? BoardCell.CellState.WhiteOccupied : BoardCell.CellState.BlackOccupied);
-                        for(int i = 0; i < inactivePlayer.GetMyBoardCells().Count; i++)
-                        {
-                            if (inactivePlayer.GetMyBoardCells().ElementAt(i).GetId() == move.Item1)
-                            {
-                                inactivePlayer.GetMyBoardCells().ElementAt(i).SetId(move.Item2);
-                            }
-                        }
-                        
-                        GamePlay.CheckForMill(inactivePlayer, Game.GetBoard().GetCells().ElementAt(move.Item2));
-                        for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
-                        {
-                            if (GamePlay.CheckMillIsNew(inactivePlayer.GetMyMills()[i]))
-                            {
-                                inactivePlayer.SetMyState(Player.PlayerState.Taking);
-                            }
-                        }
                         Game.GetBoard().UpdateCells();
+                        int index = inactivePlayer.GetMyBoardCells().FindIndex(x => x.GetId() == move.Item1);
+                        inactivePlayer.GetMyBoardCells()[index] = Game.GetBoard().GetCells().ElementAt(move.Item2);
+                        Panel panelToVerify = Game.GetBoard().GetPanels()[Game.GetBoard().GetCells().ElementAt(move.Item2).GetId()];
+                        Game.VerifyIfDestroyedMill(move.Item1, panelToVerify);
+                        Game.VerifyCowInMill(panelToVerify);
                     }
                 }
                 if (inactivePlayer.GetMyState() == Player.PlayerState.Taking)
                 {
-                    Debug.WriteLine(" ia piesa huo");
                     if (move.Item1 != -1)
                     {
                         for (int i = 0; i < inactivePlayer.GetMyMills().Count(); i++)
@@ -168,8 +159,6 @@ namespace Morabaraba
                                 inactivePlayer.GetMyMills()[i].SetIsNew(false);
                                 Game.GetBoard().SetCells(aiPlayer.TakeCow(inactivePlayer.GetMyColor(), Game.GetBoard().GetCells()));
                                 EvaluatePlayerState(inactivePlayer); 
-                                activePlayer.SetMyTurn(true); 
-                                inactivePlayer.SetMyTurn(false);
                                 Game.GetBoard().UpdateCells();
                             }
                         }
@@ -180,8 +169,6 @@ namespace Morabaraba
                 {
                     inactivePlayer.GetMyHandCells().RemoveAt(inactivePlayer.GetMyHandCells().Count - 1);
                 }
-                Debug.WriteLine(inactivePlayer.GetMyHandCells().Count + " graaaaaaaaas");
-                Debug.WriteLine(inactivePlayer.GetMyBoardCells().Count + " graaaaaaaaas");
                 activePlayer.SetMyTurn(true);
                 inactivePlayer.SetMyTurn(false);
             }
@@ -524,7 +511,7 @@ namespace Morabaraba
             }
             if (player.GetMyHandCells().Count == 0 && player.GetMyBoardCells().Count < 3)
             {
-                MessageBox.Show("Felicitari! AI castigat!"+ player.GetMyName());
+                MessageBox.Show("Joc terminat player " + (player.GetMyColor() ? player1.GetMyName() : player2.GetMyName()) +  " e castigator!") ;
                 System.Windows.Forms.Application.Exit();
             }
         }

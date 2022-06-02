@@ -73,7 +73,7 @@ namespace Morabaraba
                 if (gameState == GameState.AgainstPC)
                 {
                     aiPlayer = new AI();
-                    GamePlay.WhoStartsTheGame();
+                    //GamePlay.WhoStartsTheGame();
                     GamePlay.CreatePlayers();
                     SetPlayerName(GamePlay.GetPlayer1().GetMyName(), "PC");
                     GamePlay.GetPlayer2().SetMyName("PC");
@@ -420,6 +420,7 @@ namespace Morabaraba
                     }
                     if (ctMill != 1)
                     {
+                        Debug.WriteLine(" da ci deci");
                         activePlayer.SetMyState(Player.PlayerState.Taking);
                         if (gameState == GameState.AgainstPlayer)
                         {
@@ -428,6 +429,7 @@ namespace Morabaraba
                     }
                     else
                     {
+                        Debug.WriteLine("ultima reduta!...");
                         //moving
                         if (activePlayer.GetMyHandCells().Count == 0 && activePlayer.GetMyBoardCells().Count > 3)
                         {
@@ -458,8 +460,8 @@ namespace Morabaraba
                             }
                         }
                         else
-                        {
-                            GamePlay.SwitchTurn();
+                        { 
+                             GamePlay.SwitchTurn();
                         }
                         MessageBox.Show("E randul adversarului");
                         if (gameState == GameState.AgainstPlayer)
@@ -500,7 +502,10 @@ namespace Morabaraba
                 {
                     if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
                     {
-                        MessageBox.Show("Felicitari ati facut o moara! Luati o piesa a adversarului.");
+                        if(activePlayer.GetMyName() != "PC")
+                        {
+                            MessageBox.Show("Felicitari ati facut o moara! Luati o piesa a adversarului.");
+                        }
                         activePlayer.SetMyState(Player.PlayerState.Taking);
                     }
                 }
@@ -650,6 +655,7 @@ namespace Morabaraba
                             if (posibilities.Count > 0)
                             {
                                 int index = activePlayer.GetMyBoardCells().FindIndex(x => x.GetId() == board.GetCells().ElementAt(int.Parse(panel.Name)).GetId());
+                                Debug.WriteLine(index + " juo" + board.GetCells().ElementAt(int.Parse(panel.Name)).GetId() + " muta la" + board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId());
                                 activePlayer.GetMyBoardCells()[index] = board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId());
                                 Panel panelToVerify = board.GetPanels()[board.GetCells().ElementAt(posibilities.ElementAt(posibilities.Count - 1).GetId()).GetId()];
                                 Player.PlayerState playerState = GamePlay.GetActivePlayer().GetMyState();

@@ -11,7 +11,7 @@ namespace Morabaraba
     {
         Tuple<int, int> nextMaxMove;
         Tuple<int, int> nextMinMove;
-        public const int Depth = 5;
+        public const int Depth = 2;
 
         public void PlaceRandomPiece()
         {
@@ -188,6 +188,7 @@ namespace Morabaraba
             {
                 bestMove = nextMinMove;
             }
+            Debug.WriteLine("ajunge la sfarsit");
             return bestMove;
         }
 
@@ -255,7 +256,7 @@ namespace Morabaraba
                         else
                         {
                             if(move.Item1 != move.Item2)
-                            {
+                            { 
                                 copyBoard.ElementAt(move.Item1).SetState(BoardCell.CellState.Empty);
                                 copyBoard.ElementAt(move.Item2).SetState(BoardCell.CellState.BlackOccupied);
                             }
@@ -266,6 +267,7 @@ namespace Morabaraba
                         {
                             if (GamePlay.CheckMillIsNew(activePlayer.GetMyMills()[i]))
                             {
+                               
                                 copyBoard = TakeCow(color, copyBoard);
                             }
                         }
@@ -284,18 +286,10 @@ namespace Morabaraba
         public List<BoardCell> TakeCow(bool color, List<BoardCell> currentBoard)
         {
             int id = ChooseWhichCow(color, currentBoard);
-            currentBoard.ElementAt(id).SetState(BoardCell.CellState.Empty);
             Player player;
-            if(GamePlay.GetPlayer1().GetMyColor() != color)
-            {
-                player = GamePlay.GetPlayer1();
-            }
-            else
-            {
-                player = GamePlay.GetPlayer2();
-            }
+            player = GamePlay.GetPlayer1();
             player.GetMyBoardCells().Remove(currentBoard.ElementAt(id));
-
+            currentBoard.ElementAt(id).SetState(BoardCell.CellState.Empty);
             return currentBoard;
         }
 
